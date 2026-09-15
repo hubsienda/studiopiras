@@ -1,50 +1,53 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+type GalleryKind = 'special' | 'landscape' | 'portrait';
+
 type GalleryImage = {
   src: string;
   alt: string;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
+  kind: GalleryKind;
 };
 
 type GalleryRow = {
-  layout: 'feature' | 'pair-left' | 'pair-right' | 'pair-balanced';
+  layout: 'special' | 'landscape-pair' | 'portrait-single';
   indexes: number[];
 };
 
 const galleryImages: GalleryImage[] = [
-  { src: '/gallery/studio-01.jpg', alt: 'Ambiente dello Studio Piras', width: 1200, height: 402 },
-  { src: '/gallery/studio-02.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-03.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-04.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-05.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-06.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-07.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-08.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-12.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-16.JPG', alt: 'Spazi dello Studio Piras' },
-  { src: '/gallery/studio-17.JPG', alt: 'Ambiente dello Studio Piras' },
-  { src: '/gallery/studio-18.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-01.jpg', alt: 'Ambiente dello Studio Piras', width: 1200, height: 402, kind: 'special' },
+  { src: '/gallery/studio-02.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-03.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1204, kind: 'landscape' },
+  { src: '/gallery/studio-04.JPG', alt: 'Spazi dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
+  { src: '/gallery/studio-05.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 674, kind: 'landscape' },
+  { src: '/gallery/studio-06.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-07.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 802, kind: 'landscape' },
+  { src: '/gallery/studio-08.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras', width: 1299, height: 866, kind: 'landscape' },
+  { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-12.JPG', alt: 'Spazi dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
+  { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
+  { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras', width: 768, height: 1024, kind: 'portrait' },
+  { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-16.JPG', alt: 'Spazi dello Studio Piras', width: 1203, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-17.JPG', alt: 'Ambiente dello Studio Piras', width: 1203, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-18.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
 ];
 
 const galleryRows: GalleryRow[] = [
-  { layout: 'feature', indexes: [0] },
-  { layout: 'pair-left', indexes: [1, 2] },
-  { layout: 'pair-right', indexes: [3, 4] },
-  { layout: 'pair-balanced', indexes: [5, 6] },
-  { layout: 'pair-left', indexes: [7, 8] },
-  { layout: 'pair-right', indexes: [9, 10] },
-  { layout: 'pair-balanced', indexes: [11, 12] },
-  { layout: 'pair-left', indexes: [13, 14] },
-  { layout: 'pair-right', indexes: [15, 16] },
-  { layout: 'feature', indexes: [17] },
+  { layout: 'special', indexes: [0] },
+  { layout: 'landscape-pair', indexes: [1, 2] },
+  { layout: 'landscape-pair', indexes: [3, 4] },
+  { layout: 'landscape-pair', indexes: [5, 6] },
+  { layout: 'landscape-pair', indexes: [7, 8] },
+  { layout: 'landscape-pair', indexes: [9, 10] },
+  { layout: 'landscape-pair', indexes: [11, 12] },
+  { layout: 'portrait-single', indexes: [13] },
+  { layout: 'landscape-pair', indexes: [14, 15] },
+  { layout: 'landscape-pair', indexes: [16, 17] },
 ];
 ---
 <BaseLayout
@@ -69,7 +72,7 @@ const galleryRows: GalleryRow[] = [
             const image = galleryImages[index];
             const isFirst = index === 0;
             return (
-              <figure class="gallery-item">
+              <figure class:list={['gallery-item', `gallery-item--${image.kind}`]}>
                 <button
                   type="button"
                   class="gallery-trigger"
@@ -143,7 +146,16 @@ const galleryRows: GalleryRow[] = [
   .gallery-row {
     display: grid;
     gap: clamp(1.5rem, 2.4vw, 2rem);
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .gallery-row--landscape-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gallery-row--portrait-single {
+    width: min(48%, 560px);
+    margin-inline: auto;
   }
 
   .gallery-item {
@@ -154,21 +166,46 @@ const galleryRows: GalleryRow[] = [
   .gallery-trigger {
     display: block;
     width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
     border: 0;
-    background: transparent;
+    background: var(--paper);
     cursor: zoom-in;
     text-align: inherit;
+  }
+
+  .gallery-item--special .gallery-trigger {
+    height: auto;
+    overflow: visible;
+  }
+
+  .gallery-item--landscape .gallery-trigger {
+    aspect-ratio: 3 / 2;
+  }
+
+  .gallery-item--portrait .gallery-trigger {
+    aspect-ratio: 3 / 4;
   }
 
   .gallery-image {
     display: block;
     width: 100%;
-    height: auto;
-    aspect-ratio: auto 3 / 2;
     background: var(--paper);
     transition: opacity 180ms ease;
+  }
+
+  .gallery-item--landscape .gallery-image,
+  .gallery-item--portrait .gallery-image {
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+
+  .gallery-item--special .gallery-image {
+    height: auto;
+    object-fit: contain;
   }
 
   .gallery-trigger:hover .gallery-image {
@@ -275,28 +312,24 @@ const galleryRows: GalleryRow[] = [
     overflow: hidden;
   }
 
-  @media (min-width: 768px) {
-    .gallery-row--pair-left {
-      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
-    }
-
-    .gallery-row--pair-right {
-      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
-    }
-
-    .gallery-row--pair-balanced {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (max-width: 1023px) {
+    .gallery-row--portrait-single {
+      width: min(64%, 520px);
     }
   }
 
   @media (max-width: 767px) {
     .gallery-sequence,
     .gallery-row {
-      gap: 1.25rem;
+      gap: 1.125rem;
     }
 
-    .gallery-row {
+    .gallery-row--landscape-pair {
       grid-template-columns: 1fr;
+    }
+
+    .gallery-row--portrait-single {
+      width: 100%;
     }
 
     .gallery-links {
