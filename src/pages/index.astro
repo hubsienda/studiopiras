@@ -2,4 +2,107 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { services, site } from '../data/site';
 ---
-<BaseLayout title="Studio Piras" description="Studio Piras, Dottore Commercialista e Revisore Legale. Consulenza fiscale, societaria e finanziaria per decisioni complesse, operazioni straordinarie, gruppi, patrimonio e contenzioso tributario."><section class="shell py-16 md:py-28"><div><p class="brand-name text-2xl md:text-[1.7rem]">Studio Piras</p><p class="eyebrow mt-3">Dottore Commercialista · Revisore Legale</p></div><h1 class="display mt-8 max-w-4xl">{site.claim}</h1><div class="mt-10 grid gap-10 lg:grid-cols-[1.25fr_.75fr] lg:items-end"><div class="prose-width body-copy space-y-5"><p>Da oltre trent’anni affianchiamo imprenditori, società e gruppi nelle decisioni fiscali, societarie e finanziarie che richiedono esperienza, visione d’insieme e capacità di valutarne le conseguenze nel tempo.</p><p>Dalla gestione ordinaria alle operazioni straordinarie, dalla riorganizzazione dei gruppi alla pianificazione patrimoniale e successoria, fino al contenzioso tributario: lo Studio Piras interviene dove competenza tecnica e strategia devono procedere insieme.</p></div><div class="lg:text-right"><a href="/contatti/" class="sans">Contatta lo Studio →</a></div></div></section><section class="shell pb-10 md:pb-16"><img src="/1.JPG" alt="" width="1200" height="800" fetchpriority="high" decoding="async" class="block h-auto w-full" /></section><section class="rule shell py-20 md:py-28"><div class="grid gap-12 lg:grid-cols-[.6fr_1.4fr]"><p class="eyebrow">Lo Studio</p><div class="prose-width body-copy space-y-5"><p>Dal 1993 lo Studio Piras affianca imprese, imprenditori e professionisti nella gestione delle questioni fiscali, societarie e finanziarie e nelle operazioni che richiedono una valutazione integrata di più profili.</p><p>L’esperienza maturata nel tempo ha consolidato un metodo fondato sull’analisi del problema nella sua interezza, sull’indipendenza di giudizio e sulla chiarezza delle soluzioni proposte.</p><p>Il rapporto con il cliente resta diretto e personale, anche quando la complessità dell’incarico richiede il coordinamento con competenze legali, notarili o specialistiche.</p><p><a href="/studio/">Conosci lo Studio e Raffaele Piras →</a></p></div></div></section><section class="bg-[var(--navy)] py-20 text-[var(--on-dark)] md:py-28"><div class="shell"><p class="eyebrow text-[var(--on-dark-muted)]">Il nostro metodo</p><h2 class="section-title mt-5">Non soltanto consulenza. Un metodo.</h2><div class="mt-14 grid gap-10 md:grid-cols-3">{[['ANALISI','Comprendere il problema nella sua interezza, ricostruendo fatti, obiettivi, vincoli e conseguenze.'],['STRATEGIA','Confrontare le alternative, misurare rischi e benefici e individuare la soluzione più coerente.'],['ESECUZIONE','Tradurre la scelta in atti, numeri, adempimenti e coordinamento operativo, accompagnandone l’attuazione.']].map(([t,x])=><div class="border-t border-white/25 pt-6"><h3 class="text-2xl">{t}</h3><p class="mt-4 leading-7 text-[var(--on-dark-muted)]">{x}</p></div>)}</div><p class="lead mt-16 max-w-4xl">Le soluzioni tecnicamente corrette possono essere più di una. Il nostro compito è aiutare il cliente a comprendere quale sia la più adatta alla sua situazione e accompagnarlo nella sua concreta realizzazione.</p></div></section><section class="shell py-10 md:py-14"><img src="/2.JPG" alt="" width="2000" height="1333" loading="lazy" decoding="async" class="block h-auto w-full" /></section><section class="shell py-20 md:py-28"><p class="eyebrow">Aree di attività</p><h2 class="section-title mt-5">Le decisioni che richiedono una visione d’insieme.</h2><div class="mt-12 grid md:grid-cols-2">{services.map((s,i)=><article class="border-t border-[var(--line)] py-8 md:pr-10"><p class="sans text-xs text-[var(--muted)]">0{i+1}</p><h3 class="mt-3 text-3xl"><a class="no-underline" href={`/aree-di-attivita/${s.slug}/`}>{s.title}</a></h3><p class="mt-4 leading-7 text-[var(--muted)]">{s.intro}</p><p class="mt-5 sans text-sm"><a href={`/aree-di-attivita/${s.slug}/`}>Approfondisci →</a></p></article>)}</div></section><section class="shell py-8 md:py-12"><img src="/3.JPG" alt="" width="1200" height="402" loading="lazy" decoding="async" class="block h-auto w-full" /></section><section class="rule shell py-20"><div class="grid gap-12 lg:grid-cols-[.65fr_1.35fr]"><p class="eyebrow">Competenze integrate</p><div class="prose-width"><h2 class="section-title">Competenze integrate per operazioni complesse</h2><p class="body-copy mt-6">Le questioni più complesse raramente appartengono a una sola disciplina. Quando l’incarico lo richiede, lo Studio coordina il proprio intervento con professionisti legali, notarili, finanziari e specialistici, mantenendo una visione unitaria dell’operazione e un interlocutore chiaro per il cliente.</p></div></div></section></BaseLayout>
+<BaseLayout title="Studio Piras" description="Studio Piras, Dottore Commercialista e Revisore Legale. Consulenza fiscale, societaria e finanziaria per decisioni complesse, operazioni straordinarie, gruppi, patrimonio e contenzioso tributario."><section class="shell py-16 md:py-28"><div><p class="brand-name text-2xl md:text-[1.7rem]">Studio Piras</p><p class="eyebrow mt-3">Dottore Commercialista · Revisore Legale</p></div><h1 class="display mt-8 max-w-4xl">{site.claim}</h1><div class="mt-10 grid gap-10 lg:grid-cols-[1.25fr_.75fr] lg:items-end"><div class="prose-width body-copy space-y-5"><p>Da oltre trent’anni affianchiamo imprenditori, società e gruppi nelle decisioni fiscali, societarie e finanziarie che richiedono esperienza, visione d’insieme e capacità di valutarne le conseguenze nel tempo.</p><p>Dalla gestione ordinaria alle operazioni straordinarie, dalla riorganizzazione dei gruppi alla pianificazione patrimoniale e successoria, fino al contenzioso tributario: lo Studio Piras interviene dove competenza tecnica e strategia devono procedere insieme.</p></div><div class="lg:text-right"><a href="/contatti/" class="sans">Contatta lo Studio →</a></div></div></section><section class="home-photo-shell pb-10 md:pb-16" aria-hidden="true"><div class="home-photo-parallax" data-parallax-home><img src="/1.JPG" alt="" width="1200" height="800" fetchpriority="high" decoding="async" class="home-photo-image" /></div></section><section class="rule shell py-20 md:py-28"><div class="grid gap-12 lg:grid-cols-[.6fr_1.4fr]"><p class="eyebrow">Lo Studio</p><div class="prose-width body-copy space-y-5"><p>Dal 1993 lo Studio Piras affianca imprese, imprenditori e professionisti nella gestione delle questioni fiscali, societarie e finanziarie e nelle operazioni che richiedono una valutazione integrata di più profili.</p><p>L’esperienza maturata nel tempo ha consolidato un metodo fondato sull’analisi del problema nella sua interezza, sull’indipendenza di giudizio e sulla chiarezza delle soluzioni proposte.</p><p>Il rapporto con il cliente resta diretto e personale, anche quando la complessità dell’incarico richiede il coordinamento con competenze legali, notarili o specialistiche.</p><p><a href="/studio/">Conosci lo Studio e Raffaele Piras →</a></p></div></div></section><section class="bg-[var(--navy)] py-20 text-[var(--on-dark)] md:py-28"><div class="shell"><p class="eyebrow text-[var(--on-dark-muted)]">Il nostro metodo</p><h2 class="section-title mt-5">Non soltanto consulenza. Un metodo.</h2><div class="mt-14 grid gap-10 md:grid-cols-3">{[['ANALISI','Comprendere il problema nella sua interezza, ricostruendo fatti, obiettivi, vincoli e conseguenze.'],['STRATEGIA','Confrontare le alternative, misurare rischi e benefici e individuare la soluzione più coerente.'],['ESECUZIONE','Tradurre la scelta in atti, numeri, adempimenti e coordinamento operativo, accompagnandone l’attuazione.']].map(([t,x])=><div class="border-t border-white/25 pt-6"><h3 class="text-2xl">{t}</h3><p class="mt-4 leading-7 text-[var(--on-dark-muted)]">{x}</p></div>)}</div><p class="lead mt-16 max-w-4xl">Le soluzioni tecnicamente corrette possono essere più di una. Il nostro compito è aiutare il cliente a comprendere quale sia la più adatta alla sua situazione e accompagnarlo nella sua concreta realizzazione.</p></div></section><section class="shell py-20 md:py-28"><p class="eyebrow">Aree di attività</p><h2 class="section-title mt-5">Le decisioni che richiedono una visione d’insieme.</h2><div class="mt-12 grid md:grid-cols-2">{services.map((s,i)=><article class="border-t border-[var(--line)] py-8 md:pr-10"><p class="sans text-xs text-[var(--muted)]">0{i+1}</p><h3 class="mt-3 text-3xl"><a class="no-underline" href={`/aree-di-attivita/${s.slug}/`}>{s.title}</a></h3><p class="mt-4 leading-7 text-[var(--muted)]">{s.intro}</p><p class="mt-5 sans text-sm"><a href={`/aree-di-attivita/${s.slug}/`}>Approfondisci →</a></p></article>)}</div></section><section class="rule shell py-20"><div class="grid gap-12 lg:grid-cols-[.65fr_1.35fr]"><p class="eyebrow">Competenze integrate</p><div class="prose-width"><h2 class="section-title">Competenze integrate per operazioni complesse</h2><p class="body-copy mt-6">Le questioni più complesse raramente appartengono a una sola disciplina. Quando l’incarico lo richiede, lo Studio coordina il proprio intervento con professionisti legali, notarili, finanziari e specialistici, mantenendo una visione unitaria dell’operazione e un interlocutore chiaro per il cliente.</p></div></div></section></BaseLayout>
+
+<style>
+  .home-photo-shell {
+    width: min(900px, calc(100% - 3rem));
+    margin-inline: auto;
+  }
+
+  .home-photo-parallax {
+    position: relative;
+    height: clamp(420px, 50vw, 500px);
+    overflow: hidden;
+  }
+
+  .home-photo-image {
+    position: absolute;
+    inset-inline: 0;
+    top: -18px;
+    width: 100%;
+    height: calc(100% + 36px);
+    object-fit: cover;
+    object-position: center;
+    transform: translate3d(0, var(--home-parallax-y, 0px), 0);
+    will-change: transform;
+  }
+
+  @media (max-width: 767px) {
+    .home-photo-shell {
+      width: min(100% - 2rem, 900px);
+    }
+
+    .home-photo-parallax {
+      height: auto;
+      overflow: visible;
+    }
+
+    .home-photo-image {
+      position: static;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      transform: none !important;
+      will-change: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-photo-image {
+      transform: none !important;
+      will-change: auto;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const frame = document.querySelector('[data-parallax-home]');
+    if (!frame) return;
+
+    const image = frame.querySelector('.home-photo-image');
+    const desktop = window.matchMedia('(min-width: 768px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let active = false;
+    let ticking = false;
+
+    const reset = () => {
+      image.style.setProperty('--home-parallax-y', '0px');
+    };
+
+    const update = () => {
+      ticking = false;
+      if (!active || !desktop.matches || reducedMotion.matches) {
+        reset();
+        return;
+      }
+
+      const rect = frame.getBoundingClientRect();
+      const viewport = window.innerHeight;
+      const distance = viewport + rect.height;
+      const progress = Math.min(1, Math.max(0, (viewport - rect.top) / distance));
+      const offset = (progress - 0.5) * 36;
+      image.style.setProperty('--home-parallax-y', `${offset.toFixed(2)}px`);
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      active = entries.some((entry) => entry.isIntersecting);
+      if (active) requestUpdate();
+      else reset();
+    }, { rootMargin: '160px 0px' });
+
+    observer.observe(frame);
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    desktop.addEventListener('change', requestUpdate);
+    reducedMotion.addEventListener('change', requestUpdate);
+  })();
+</script>
