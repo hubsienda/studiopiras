@@ -2,4 +2,133 @@
 const current = Astro.url.pathname;
 const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['/approfondimenti/','Approfondimenti'],['/contatti/','Sedi e contatti']];
 ---
-<header class="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--ivory)]/95 backdrop-blur-sm"><div class="shell flex min-h-20 items-center justify-between gap-6"><a href="/" class="no-underline" aria-label="Studio Piras, home"><span class="brand-name block text-[1.35rem] leading-none">Studio Piras</span><span class="sans mt-2 block text-[.66rem] uppercase tracking-[.12em] text-[var(--muted)]">Dottore Commercialista · Revisore Legale</span></a><nav class="hidden lg:block" aria-label="Navigazione principale"><ul class="sans flex items-center gap-7 text-sm">{nav.map(([href,label]) => <li><a class:list={["no-underline transition-colors hover:text-[var(--navy-soft)] hover:underline",current.startsWith(href)&&"underline"]} href={href}>{label}</a></li>)}</ul></nav><details class="relative lg:hidden"><summary class="sans cursor-pointer list-none border border-[var(--line)] px-4 py-2 text-sm">Menu</summary><nav aria-label="Navigazione mobile" class="absolute right-0 mt-3 w-64 border border-[var(--line)] bg-[var(--ivory)] p-5 shadow-sm"><ul class="sans space-y-4 text-sm">{nav.map(([href,label]) => <li><a href={href}>{label}</a></li>)}</ul></nav></details></div></header>
+<header class="site-header sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--ivory)]/97 backdrop-blur-sm">
+  <div class="shell site-header-inner flex items-center justify-between gap-5">
+    <a href="/" class="header-brand no-underline" aria-label="Studio Piras, home">
+      <span class="header-brand-name block">Studio Piras</span>
+      <span class="header-brand-subtitle sans block">Dottore Commercialista · Revisore Legale</span>
+    </a>
+
+    <nav class="hidden lg:block" aria-label="Navigazione principale">
+      <ul class="sans header-nav flex items-center gap-8">
+        {nav.map(([href,label]) => (
+          <li>
+            <a class:list={["header-nav-link", current.startsWith(href) && "is-current"]} href={href}>{label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <details class="relative lg:hidden">
+      <summary class="sans header-menu-trigger cursor-pointer list-none">Menu</summary>
+      <nav aria-label="Navigazione mobile" class="header-mobile-nav absolute right-0 mt-3 w-64 border border-[var(--line)] bg-[var(--ivory)] p-5 shadow-sm">
+        <ul class="sans space-y-4">
+          {nav.map(([href,label]) => <li><a class="header-mobile-link" href={href}>{label}</a></li>)}
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header-inner {
+    min-height: 96px;
+  }
+
+  .header-brand {
+    flex: 0 1 auto;
+    color: var(--navy);
+  }
+
+  .header-brand-name {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(1.7rem, 2.2vw, 1.95rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: .01em;
+    text-transform: none;
+  }
+
+  .header-brand-subtitle {
+    margin-top: .55rem;
+    color: var(--navy-soft);
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: .075em;
+    text-transform: none;
+  }
+
+  .header-nav {
+    color: var(--navy);
+    font-size: .94rem;
+    font-weight: 600;
+    letter-spacing: .005em;
+  }
+
+  .header-nav-link {
+    position: relative;
+    display: inline-block;
+    padding-block: .45rem;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .header-nav-link::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: .12rem;
+    left: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+  }
+
+  .header-nav-link:hover,
+  .header-nav-link:focus-visible,
+  .header-nav-link.is-current {
+    color: var(--navy-soft);
+  }
+
+  .header-nav-link:hover::after,
+  .header-nav-link:focus-visible::after,
+  .header-nav-link.is-current::after {
+    transform: scaleX(1);
+  }
+
+  .header-menu-trigger {
+    border: 1px solid var(--line);
+    color: var(--navy);
+    padding: .65rem .85rem;
+    font-size: .85rem;
+    font-weight: 600;
+  }
+
+  .header-mobile-link {
+    color: var(--navy);
+    font-size: .95rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  @media (max-width: 639px) {
+    .site-header-inner {
+      min-height: 86px;
+      gap: .75rem;
+    }
+
+    .header-brand-name {
+      font-size: 1.55rem;
+    }
+
+    .header-brand-subtitle {
+      max-width: 210px;
+      margin-top: .45rem;
+      font-size: .64rem;
+      letter-spacing: .055em;
+    }
+  }
+</style>
