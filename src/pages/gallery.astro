@@ -1,11 +1,58 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+type GalleryImage = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+};
+
+type GalleryRow = {
+  layout: 'feature' | 'pair-left' | 'pair-right' | 'pair-balanced';
+  indexes: number[];
+};
+
+const galleryImages: GalleryImage[] = [
+  { src: '/gallery/studio-01.jpg', alt: 'Ambiente dello Studio Piras', width: 1200, height: 402 },
+  { src: '/gallery/studio-02.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-03.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-04.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-05.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-06.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-07.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-08.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-12.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-16.JPG', alt: 'Spazi dello Studio Piras' },
+  { src: '/gallery/studio-17.JPG', alt: 'Ambiente dello Studio Piras' },
+  { src: '/gallery/studio-18.JPG', alt: 'Spazi dello Studio Piras' },
+];
+
+const galleryRows: GalleryRow[] = [
+  { layout: 'feature', indexes: [0] },
+  { layout: 'pair-left', indexes: [1, 2] },
+  { layout: 'pair-right', indexes: [3, 4] },
+  { layout: 'pair-balanced', indexes: [5, 6] },
+  { layout: 'pair-left', indexes: [7, 8] },
+  { layout: 'pair-right', indexes: [9, 10] },
+  { layout: 'pair-balanced', indexes: [11, 12] },
+  { layout: 'pair-left', indexes: [13, 14] },
+  { layout: 'pair-right', indexes: [15, 16] },
+  { layout: 'feature', indexes: [17] },
+];
 ---
 <BaseLayout
   title="Gli spazi dello Studio"
   description="Gli spazi dello Studio Piras: ambienti pensati per il lavoro, il confronto e l'accoglienza del cliente con discrezione e riservatezza."
+  image="/gallery/studio-01.jpg"
 >
-  <section class="shell py-16 md:py-24">
+  <section class="shell gallery-intro py-16 md:py-24">
     <h1 class="display">Gli spazi dello Studio</h1>
     <p class="gallery-subheading mt-7">Luoghi pensati per lavorare con metodo e accogliere con discrezione.</p>
     <div class="prose-width body-copy mt-8 space-y-5">
@@ -14,31 +61,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <section class="rule shell py-12 md:py-20">
+  <section class="rule shell gallery-section py-12 md:py-20" aria-label="Fotografie degli spazi dello Studio">
     <div class="gallery-sequence">
-      <figure class="gallery-wide">
-        <img src="/3.JPG" alt="Ambiente dello Studio Piras" width="1200" height="402" loading="lazy" decoding="async" />
-      </figure>
-
-      <div class="gallery-pair gallery-pair-primary">
-        <figure>
-          <img src="/2.JPG" alt="Spazi interni dello Studio Piras" width="2000" height="1333" loading="lazy" decoding="async" />
-        </figure>
-        <figure>
-          <img src="/1.JPG" alt="Ambiente di lavoro dello Studio Piras" width="1200" height="800" loading="lazy" decoding="async" />
-        </figure>
-      </div>
-
-      <div class="gallery-pair gallery-pair-locations">
-        <figure>
-          <img src="/quartu.JPG" alt="Sede dello Studio Piras a Quartu Sant’Elena" width="1200" height="800" loading="lazy" decoding="async" />
-          <figcaption>Quartu Sant’Elena</figcaption>
-        </figure>
-        <figure>
-          <img src="/milano.png" alt="Sede dello Studio Piras a Milano" width="547" height="350" loading="lazy" decoding="async" />
-          <figcaption>Milano</figcaption>
-        </figure>
-      </div>
+      {galleryRows.map((row) => (
+        <div class:list={['gallery-row', `gallery-row--${row.layout}`]}>
+          {row.indexes.map((index) => {
+            const image = galleryImages[index];
+            const isFirst = index === 0;
+            return (
+              <figure class="gallery-item">
+                <button
+                  type="button"
+                  class="gallery-trigger"
+                  data-gallery-trigger
+                  data-index={index}
+                  data-src={image.src}
+                  data-alt={image.alt}
+                  aria-label={`Apri fotografia ${index + 1} a schermo intero`}
+                  aria-haspopup="dialog"
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    loading={isFirst ? 'eager' : 'lazy'}
+                    fetchpriority={isFirst ? 'high' : 'auto'}
+                    decoding="async"
+                    class="gallery-image"
+                  />
+                </button>
+              </figure>
+            );
+          })}
+        </div>
+      ))}
     </div>
   </section>
 
@@ -48,9 +105,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <a href="/contatti/">Contatta lo Studio →</a>
     </div>
   </section>
+
+  <dialog class="gallery-lightbox" data-gallery-dialog aria-label="Visualizzatore delle fotografie dello Studio">
+    <div class="lightbox-panel">
+      <div class="lightbox-toolbar">
+        <p class="lightbox-counter" data-gallery-counter aria-live="polite"></p>
+        <button type="button" class="lightbox-close" data-gallery-close aria-label="Chiudi fotografia">×</button>
+      </div>
+
+      <div class="lightbox-stage">
+        <button type="button" class="lightbox-nav lightbox-prev" data-gallery-prev aria-label="Fotografia precedente">←</button>
+        <img class="lightbox-image" data-gallery-image src="" alt="" />
+        <button type="button" class="lightbox-nav lightbox-next" data-gallery-next aria-label="Fotografia successiva">→</button>
+      </div>
+    </div>
+  </dialog>
 </BaseLayout>
 
 <style>
+  .gallery-intro {
+    padding-bottom: clamp(4rem, 7vw, 6rem);
+  }
+
   .gallery-subheading {
     max-width: 720px;
     color: var(--navy-soft);
@@ -61,36 +137,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .gallery-sequence {
     display: grid;
-    gap: clamp(2.25rem, 5vw, 4.5rem);
+    gap: clamp(1.5rem, 2.4vw, 2rem);
   }
 
-  .gallery-wide img,
-  .gallery-pair img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .gallery-pair {
+  .gallery-row {
     display: grid;
-    gap: clamp(1.5rem, 3vw, 2.75rem);
-  }
-
-  .gallery-pair-primary {
+    gap: clamp(1.5rem, 2.4vw, 2rem);
     align-items: start;
   }
 
-  .gallery-pair-locations {
-    align-items: end;
+  .gallery-item {
+    min-width: 0;
+    margin: 0;
   }
 
-  figcaption {
-    margin-top: .8rem;
-    color: var(--navy-soft);
-    font-size: .85rem;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
+  .gallery-trigger {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+    text-align: inherit;
+  }
+
+  .gallery-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto 3 / 2;
+    background: var(--paper);
+    transition: opacity 180ms ease;
+  }
+
+  .gallery-trigger:hover .gallery-image {
+    opacity: .96;
   }
 
   .gallery-links {
@@ -103,29 +185,223 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-weight: 600;
   }
 
+  .gallery-lightbox {
+    width: min(96vw, 1500px);
+    max-width: none;
+    max-height: 96vh;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    color: var(--on-dark);
+  }
+
+  .gallery-lightbox::backdrop {
+    background: rgba(10, 20, 27, .94);
+  }
+
+  .lightbox-panel {
+    display: grid;
+    gap: .75rem;
+  }
+
+  .lightbox-toolbar {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--on-dark);
+  }
+
+  .lightbox-counter {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+  }
+
+  .lightbox-close,
+  .lightbox-nav {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(247, 244, 237, .55);
+    background: rgba(19, 38, 51, .42);
+    color: var(--on-dark);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .lightbox-close {
+    font-size: 1.65rem;
+    line-height: 1;
+  }
+
+  .lightbox-nav {
+    font-size: 1.35rem;
+  }
+
+  .lightbox-close:hover,
+  .lightbox-nav:hover,
+  .lightbox-close:focus-visible,
+  .lightbox-nav:focus-visible {
+    border-color: var(--on-dark);
+    background: rgba(247, 244, 237, .12);
+  }
+
+  .lightbox-stage {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(.5rem, 1.8vw, 1.5rem);
+  }
+
+  .lightbox-image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(96vh - 72px);
+    margin-inline: auto;
+    object-fit: contain;
+  }
+
+  :global(html.gallery-lightbox-open) {
+    overflow: hidden;
+  }
+
   @media (min-width: 768px) {
-    .gallery-pair-primary {
-      grid-template-columns: minmax(0, 1.16fr) minmax(0, .84fr);
+    .gallery-row--pair-left {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
     }
 
-    .gallery-pair-locations {
-      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    .gallery-row--pair-right {
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+    }
+
+    .gallery-row--pair-balanced {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 767px) {
-    .gallery-sequence {
-      gap: 2.5rem;
+    .gallery-sequence,
+    .gallery-row {
+      gap: 1.25rem;
     }
 
-    .gallery-pair {
+    .gallery-row {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
     }
 
     .gallery-links {
       align-items: flex-start;
       flex-direction: column;
     }
+
+    .gallery-lightbox {
+      width: 100vw;
+      max-height: 100vh;
+      padding: .75rem;
+    }
+
+    .lightbox-stage {
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .lightbox-image {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      max-height: calc(100vh - 140px);
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+      grid-row: 2;
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-image,
+    .lightbox-close,
+    .lightbox-nav {
+      transition: none;
+    }
   }
 </style>
+
+<script is:inline>
+  (() => {
+    const triggers = Array.from(document.querySelectorAll('[data-gallery-trigger]'));
+    const dialog = document.querySelector('[data-gallery-dialog]');
+    const lightboxImage = dialog?.querySelector('[data-gallery-image]');
+    const counter = dialog?.querySelector('[data-gallery-counter]');
+    const closeButton = dialog?.querySelector('[data-gallery-close]');
+    const previousButton = dialog?.querySelector('[data-gallery-prev]');
+    const nextButton = dialog?.querySelector('[data-gallery-next]');
+
+    if (!dialog || !lightboxImage || !counter || !closeButton || !previousButton || !nextButton || !triggers.length) return;
+
+    let currentIndex = 0;
+    let returnFocus = null;
+
+    const render = (index) => {
+      currentIndex = (index + triggers.length) % triggers.length;
+      const trigger = triggers[currentIndex];
+      lightboxImage.src = trigger.dataset.src || '';
+      lightboxImage.alt = trigger.dataset.alt || '';
+      counter.textContent = `${currentIndex + 1} / ${triggers.length}`;
+    };
+
+    const open = (index, trigger) => {
+      returnFocus = trigger;
+      render(index);
+      dialog.showModal();
+      document.documentElement.classList.add('gallery-lightbox-open');
+      closeButton.focus();
+    };
+
+    const close = () => {
+      if (dialog.open) dialog.close();
+    };
+
+    triggers.forEach((trigger, index) => {
+      trigger.addEventListener('click', () => open(index, trigger));
+    });
+
+    previousButton.addEventListener('click', () => render(currentIndex - 1));
+    nextButton.addEventListener('click', () => render(currentIndex + 1));
+    closeButton.addEventListener('click', close);
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      close();
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        render(currentIndex - 1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        render(currentIndex + 1);
+      }
+    });
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.classList.remove('gallery-lightbox-open');
+      if (returnFocus instanceof HTMLElement) returnFocus.focus();
+    });
+  })();
+</script>
