@@ -1,0 +1,4 @@
+---
+import { site } from '../data/site';
+---
+<footer class="mt-24 border-t border-[var(--line)] py-12"><div class="shell grid gap-10 md:grid-cols-3"><div><p class="text-lg">Studio Piras</p><p class="sans mt-2 text-sm text-[var(--muted)]">Dottore Commercialista · Revisore Legale</p></div><div class="sans text-sm leading-7"><p>Via Sicilia, 65 · 09045 Quartu Sant’Elena (CA)</p><p><a href={`tel:${site.phone.replace(/\s/g,'')}`}>{site.phone}</a></p><p><a href={`mailto:${site.email}`}>{site.email}</a></p></div><div class="sans text-sm leading-7 md:text-right"><p>P. IVA {site.vat}</p><p><a href="/privacy/">Privacy</a> · <a href="/cookie/">Cookie</a></p><p>© {new Date().getFullYear()} Studio Dottor Raffaele Piras</p></div></div></footer>
