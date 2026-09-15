@@ -40,9 +40,9 @@ Output directory: `dist`
 
 Collegare Vercel soltanto dopo revisione. Non modificare DNS e non sostituire il sito Carrd esistente finché la nuova versione non è approvata.
 
-## Dati e TODO
+## Dati verificati
 
-Verificati sul sito pubblico: Via Sicilia 65, 09045 Quartu Sant’Elena (CA); +39 070 861888; sede Milano in Via G.B. Pergolesi 2, 20124; P. IVA 02132430923. L’indirizzo `info@studiopiras.it` è coerente con fonti professionali pubbliche ma deve essere confermato dallo Studio prima della messa in produzione definitiva, poiché il sito Carrd lo protegge tramite offuscamento.
+Dati confermati: Via Sicilia 65, 09045 Quartu Sant’Elena (CA); +39 070 861888; sede Milano in Via G.B. Pergolesi 2, 20124; P. IVA 02132430923; `info@studiopiras.it` quale indirizzo email di riferimento e destinatario delle comunicazioni inviate dai clienti allo Studio.
 
 Privacy e Cookie sono state riallineate alla tecnologia effettiva: nessun modulo, newsletter, sistema pubblicitario, Google Analytics, Meta Pixel o mappa incorporata.
 
