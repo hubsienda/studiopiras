@@ -1,6 +1,13 @@
 ---
 const current = Astro.url.pathname;
-const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['/approfondimenti/','Approfondimenti'],['/contatti/','Sedi e contatti']];
+const nav = [
+  ['/', 'HOME'],
+  ['/studio', 'STUDIO'],
+  ['/aree-di-attivita', 'AREE'],
+  ['/approfondimenti', 'TEMATICHE'],
+  ['/contatti', 'CONTATTI']
+];
+const isCurrent = (href) => href === '/' ? current === '/' : current.startsWith(href);
 ---
 <header class="site-header sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--ivory)]/97 backdrop-blur-sm">
   <div class="shell site-header-inner flex items-center justify-between gap-5">
@@ -10,20 +17,22 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
     </a>
 
     <nav class="hidden lg:block" aria-label="Navigazione principale">
-      <ul class="sans header-nav flex items-center gap-8">
+      <ul class="header-nav flex items-center gap-7">
         {nav.map(([href,label]) => (
           <li>
-            <a class:list={["header-nav-link", current.startsWith(href) && "is-current"]} href={href}>{label}</a>
+            <a class:list={["header-nav-link", isCurrent(href) && "is-current"]} href={href}>{label}</a>
           </li>
         ))}
       </ul>
     </nav>
 
     <details class="relative lg:hidden">
-      <summary class="sans header-menu-trigger cursor-pointer list-none">Menu</summary>
+      <summary class="header-menu-trigger cursor-pointer list-none">Menu</summary>
       <nav aria-label="Navigazione mobile" class="header-mobile-nav absolute right-0 mt-3 w-64 border border-[var(--line)] bg-[var(--ivory)] p-5 shadow-sm">
-        <ul class="sans space-y-4">
-          {nav.map(([href,label]) => <li><a class="header-mobile-link" href={href}>{label}</a></li>)}
+        <ul class="space-y-1">
+          {nav.map(([href,label]) => (
+            <li><a class:list={["header-mobile-link", isCurrent(href) && "is-current"]} href={href}>{label}</a></li>
+          ))}
         </ul>
       </nav>
     </details>
@@ -41,7 +50,7 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
   }
 
   .header-brand-name {
-    font-family: 'Cinzel', Georgia, serif;
+    font-family: var(--font-brand);
     font-size: clamp(1.78rem, 2.2vw, 2rem);
     font-weight: 600;
     line-height: 1;
@@ -55,21 +64,22 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
     font-size: .8rem;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: .065em;
-    text-transform: none;
+    letter-spacing: .055em;
   }
 
   .header-nav {
     color: var(--navy);
-    font-size: .96rem;
+    font-family: var(--font-body);
+    font-size: .91rem;
     font-weight: 600;
-    letter-spacing: .002em;
+    line-height: 1;
+    letter-spacing: .055em;
   }
 
   .header-nav-link {
     position: relative;
     display: inline-block;
-    padding-block: .45rem;
+    padding-block: .55rem;
     text-decoration: none;
     transition: color 180ms ease;
   }
@@ -78,7 +88,7 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
     content: '';
     position: absolute;
     right: 0;
-    bottom: .12rem;
+    bottom: .18rem;
     left: 0;
     height: 1px;
     background: var(--accent);
@@ -102,16 +112,28 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
   .header-menu-trigger {
     border: 1px solid var(--line);
     color: var(--navy);
-    padding: .65rem .85rem;
-    font-size: .85rem;
+    padding: .7rem .9rem;
+    font-family: var(--font-body);
+    font-size: .9rem;
     font-weight: 600;
   }
 
   .header-mobile-link {
+    display: block;
+    min-height: 44px;
+    padding: .7rem .25rem;
     color: var(--navy);
+    font-family: var(--font-body);
     font-size: .95rem;
     font-weight: 600;
+    letter-spacing: .05em;
     text-decoration: none;
+  }
+
+  .header-mobile-link.is-current {
+    color: var(--navy-soft);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
   }
 
   @media (max-width: 639px) {
@@ -128,7 +150,7 @@ const nav = [['/studio/','Studio'],['/aree-di-attivita/','Aree di attività'],['
       max-width: 215px;
       margin-top: .45rem;
       font-size: .66rem;
-      letter-spacing: .05em;
+      letter-spacing: .045em;
     }
   }
 </style>
