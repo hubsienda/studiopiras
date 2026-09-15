@@ -1,0 +1,6 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'; import { getCollection, render } from 'astro:content';
+export async function getStaticPaths(){const articles=await getCollection('approfondimenti',({data})=>!data.draft);return articles.map(article=>({params:{slug:article.id},props:{article}}));}
+const {article}=Astro.props; const {Content}=await render(article);
+---
+<BaseLayout title={article.data.title} description={article.data.description}><article class="shell py-16 md:py-24"><nav class="sans text-sm text-[var(--muted)]" aria-label="Percorso"><a href="/">Home</a> / <a href="/approfondimenti/">Approfondimenti</a></nav><header class="mt-10 max-w-4xl"><p class="eyebrow">{article.data.area??'Approfondimento'}</p><h1 class="display mt-6">{article.data.title}</h1>{article.data.pubDate&&<p class="sans mt-7 text-sm text-[var(--muted)]">Pubblicato il {article.data.pubDate.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</p>}</header><div class="body-copy prose-width mt-14 [&_h2]:mt-12 [&_h2]:text-3xl [&_p]:mt-5"><Content/></div><p class="mt-16 sans text-sm"><a href="/approfondimenti/">← Torna agli Approfondimenti</a></p></article></BaseLayout>
