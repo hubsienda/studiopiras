@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Gli spazi dello Studio"
+  description="Gli spazi dello Studio Piras: ambienti pensati per il lavoro, il confronto e l'accoglienza del cliente con discrezione e riservatezza."
+>
+  <section class="shell py-16 md:py-24">
+    <h1 class="display">Gli spazi dello Studio</h1>
+    <p class="gallery-subheading mt-7">Luoghi pensati per lavorare con metodo e accogliere con discrezione.</p>
+    <div class="prose-width body-copy mt-8 space-y-5">
+      <p>Lo Studio Piras è stato concepito come un ambiente di lavoro e di confronto nel quale funzionalità, riservatezza e attenzione al cliente convivono naturalmente.</p>
+      <p>Queste immagini raccontano gli spazi nei quali ogni giorno prendono forma analisi, valutazioni e decisioni.</p>
+    </div>
+  </section>
+
+  <section class="rule shell py-12 md:py-20">
+    <div class="gallery-sequence">
+      <figure class="gallery-wide">
+        <img src="/3.JPG" alt="Ambiente dello Studio Piras" width="1200" height="402" loading="lazy" decoding="async" />
+      </figure>
+
+      <div class="gallery-pair gallery-pair-primary">
+        <figure>
+          <img src="/2.JPG" alt="Spazi interni dello Studio Piras" width="2000" height="1333" loading="lazy" decoding="async" />
+        </figure>
+        <figure>
+          <img src="/1.JPG" alt="Ambiente di lavoro dello Studio Piras" width="1200" height="800" loading="lazy" decoding="async" />
+        </figure>
+      </div>
+
+      <div class="gallery-pair gallery-pair-locations">
+        <figure>
+          <img src="/quartu.JPG" alt="Sede dello Studio Piras a Quartu Sant’Elena" width="1200" height="800" loading="lazy" decoding="async" />
+          <figcaption>Quartu Sant’Elena</figcaption>
+        </figure>
+        <figure>
+          <img src="/milano.png" alt="Sede dello Studio Piras a Milano" width="547" height="350" loading="lazy" decoding="async" />
+          <figcaption>Milano</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule shell py-16 md:py-20">
+    <div class="gallery-links">
+      <a href="/studio/">← Torna allo Studio</a>
+      <a href="/contatti/">Contatta lo Studio →</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .gallery-subheading {
+    max-width: 720px;
+    color: var(--navy-soft);
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .gallery-sequence {
+    display: grid;
+    gap: clamp(2.25rem, 5vw, 4.5rem);
+  }
+
+  .gallery-wide img,
+  .gallery-pair img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .gallery-pair {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.75rem);
+  }
+
+  .gallery-pair-primary {
+    align-items: start;
+  }
+
+  .gallery-pair-locations {
+    align-items: end;
+  }
+
+  figcaption {
+    margin-top: .8rem;
+    color: var(--navy-soft);
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+
+  .gallery-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    font-size: .95rem;
+    font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    .gallery-pair-primary {
+      grid-template-columns: minmax(0, 1.16fr) minmax(0, .84fr);
+    }
+
+    .gallery-pair-locations {
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .gallery-sequence {
+      gap: 2.5rem;
+    }
+
+    .gallery-pair {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .gallery-links {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>
