@@ -6,8 +6,8 @@ const nav = [
   ['/aree-di-attivita', 'AREE'],
   ['/approfondimenti', 'TEMATICHE'],
   ['/contatti', 'CONTATTI']
-];
-const isCurrent = (href) => href === '/' ? current === '/' : current.startsWith(href);
+] as const;
+const isCurrent = (href: string) => href === '/' ? current === '/' : current.startsWith(href);
 ---
 <header class="site-header sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--ivory)]/97 backdrop-blur-sm">
   <div class="shell site-header-inner flex items-center justify-between gap-5">
