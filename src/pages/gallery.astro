@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-type GalleryKind = 'special' | 'landscape' | 'portrait';
+type GalleryKind = 'special' | 'standard';
 
 type GalleryImage = {
   src: string;
@@ -12,41 +12,40 @@ type GalleryImage = {
 };
 
 type GalleryRow = {
-  layout: 'special' | 'landscape-pair' | 'landscape-single' | 'portrait-single';
+  layout: 'special' | 'pair';
   indexes: number[];
 };
 
 const galleryImages: GalleryImage[] = [
   { src: '/gallery/studio-01.jpg', alt: 'Ambiente dello Studio Piras', width: 1200, height: 402, kind: 'special' },
-  { src: '/gallery/studio-02.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-03.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1204, kind: 'landscape' },
-  { src: '/gallery/studio-04.JPG', alt: 'Spazi dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
-  { src: '/gallery/studio-05.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 674, kind: 'landscape' },
-  { src: '/gallery/studio-06.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-07.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 802, kind: 'landscape' },
-  { src: '/gallery/studio-08.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras', width: 1299, height: 866, kind: 'landscape' },
-  { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
-  { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras', width: 768, height: 1024, kind: 'portrait' },
-  { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-16.JPG', alt: 'Spazi dello Studio Piras', width: 1203, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-17.JPG', alt: 'Ambiente dello Studio Piras', width: 1203, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-18.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
+  { src: '/gallery/studio-02.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-03.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1204, kind: 'standard' },
+  { src: '/gallery/studio-04.JPG', alt: 'Spazi dello Studio Piras', width: 1800, height: 1200, kind: 'standard' },
+  { src: '/gallery/studio-05.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 674, kind: 'standard' },
+  { src: '/gallery/studio-06.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-07.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 802, kind: 'standard' },
+  { src: '/gallery/studio-08.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras', width: 1299, height: 866, kind: 'standard' },
+  { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1200, kind: 'standard' },
+  { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras', width: 768, height: 1024, kind: 'standard' },
+  { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-16.JPG', alt: 'Spazi dello Studio Piras', width: 1203, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-17.JPG', alt: 'Ambiente dello Studio Piras', width: 1203, height: 800, kind: 'standard' },
+  { src: '/gallery/studio-18.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'standard' },
 ];
 
 const galleryRows: GalleryRow[] = [
   { layout: 'special', indexes: [0] },
-  { layout: 'landscape-pair', indexes: [1, 2] },
-  { layout: 'landscape-pair', indexes: [3, 4] },
-  { layout: 'landscape-pair', indexes: [5, 6] },
-  { layout: 'landscape-pair', indexes: [7, 8] },
-  { layout: 'landscape-single', indexes: [9] },
-  { layout: 'landscape-pair', indexes: [10, 11] },
-  { layout: 'portrait-single', indexes: [12] },
-  { layout: 'landscape-pair', indexes: [13, 14] },
-  { layout: 'landscape-pair', indexes: [15, 16] },
+  { layout: 'pair', indexes: [1, 2] },
+  { layout: 'pair', indexes: [3, 4] },
+  { layout: 'pair', indexes: [5, 6] },
+  { layout: 'pair', indexes: [7, 8] },
+  { layout: 'pair', indexes: [9, 10] },
+  { layout: 'pair', indexes: [11, 12] },
+  { layout: 'pair', indexes: [13, 14] },
+  { layout: 'pair', indexes: [15, 16] },
 ];
 ---
 <BaseLayout
@@ -149,18 +148,8 @@ const galleryRows: GalleryRow[] = [
     align-items: stretch;
   }
 
-  .gallery-row--landscape-pair {
+  .gallery-row--pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .gallery-row--landscape-single {
-    width: calc((100% - var(--gallery-gap)) / 2);
-    margin-inline: auto;
-  }
-
-  .gallery-row--portrait-single {
-    width: min(48%, 560px);
-    margin-inline: auto;
   }
 
   .gallery-item {
@@ -186,12 +175,8 @@ const galleryRows: GalleryRow[] = [
     overflow: visible;
   }
 
-  .gallery-item--landscape .gallery-trigger {
+  .gallery-item--standard .gallery-trigger {
     aspect-ratio: 3 / 2;
-  }
-
-  .gallery-item--portrait .gallery-trigger {
-    aspect-ratio: 3 / 4;
   }
 
   .gallery-image {
@@ -201,8 +186,7 @@ const galleryRows: GalleryRow[] = [
     transition: opacity 180ms ease;
   }
 
-  .gallery-item--landscape .gallery-image,
-  .gallery-item--portrait .gallery-image {
+  .gallery-item--standard .gallery-image {
     height: 100%;
     object-fit: cover;
     object-position: 50% 50%;
@@ -317,24 +301,13 @@ const galleryRows: GalleryRow[] = [
     overflow: hidden;
   }
 
-  @media (max-width: 1023px) {
-    .gallery-row--portrait-single {
-      width: min(64%, 520px);
-    }
-  }
-
   @media (max-width: 767px) {
     .gallery-sequence {
       --gallery-gap: 1.125rem;
     }
 
-    .gallery-row--landscape-pair {
+    .gallery-row--pair {
       grid-template-columns: 1fr;
-    }
-
-    .gallery-row--landscape-single,
-    .gallery-row--portrait-single {
-      width: 100%;
     }
 
     .gallery-links {
