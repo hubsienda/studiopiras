@@ -51,7 +51,7 @@ jobs:
               await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
               await new Promise(resolve => setTimeout(resolve, 120));
 
-              const state = await page.evaluate((expected) => {
+              const state = await page.evaluate(() => {
                 const footer = document.querySelector('.site-footer');
                 const strip = document.querySelector('.footer-external-strip');
                 const fb = document.querySelector('a[aria-label="Studio Piras su Facebook"]');
@@ -66,6 +66,7 @@ jobs:
                   overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
                   footerExists: Boolean(footer),
                   stripExists: Boolean(strip),
+                  stripInsideFooter: Boolean(footer && strip && footer.contains(strip)),
                   officialText: [
                     'Studio Piras',
                     'Dottore Commercialista · Revisore Legale',
@@ -88,9 +89,9 @@ jobs:
                   stripBg: style(strip)?.backgroundColor,
                   footerBg: style(footer)?.backgroundColor,
                 };
-              }, expected);
+              });
 
-              if (!state.footerExists || !state.stripExists || !state.officialText) throw new Error(`Footer content failure ${route} ${width}: ${JSON.stringify(state)}`);
+              if (!state.footerExists || !state.stripExists || !state.stripInsideFooter || !state.officialText) throw new Error(`Footer content failure ${route} ${width}: ${JSON.stringify(state)}`);
               if (state.overflow) throw new Error(`Horizontal overflow ${route} ${width}`);
               if (!state.fb || !state.li || !state.rp) throw new Error(`Missing external links ${route} ${width}`);
               const normalized = (u) => u.replace(/\/$/, '');
@@ -101,7 +102,8 @@ jobs:
               if (state.rp.text !== 'RP Consulting S.r.l. →') throw new Error(`RP text mismatch ${route} ${width}`);
               if ((state.fb.h ?? 0) < 40 || (state.li.h ?? 0) < 40 || (state.rp.h ?? 0) < 40) throw new Error(`Touch target too small ${route} ${width}: ${JSON.stringify(state)}`);
               if (Math.abs((state.fbSvg?.w ?? 0) - 20) > 0.5 || Math.abs((state.liSvg?.w ?? 0) - 20) > 0.5 || state.fbSvg?.ariaHidden !== 'true' || state.liSvg?.ariaHidden !== 'true') throw new Error(`Icon sizing/a11y failure ${route} ${width}: ${JSON.stringify(state)}`);
-              if (state.stripBorder !== '1px' || state.stripBorderStyle !== 'solid' || state.stripBg !== state.footerBg) throw new Error(`Strip visual integration failure ${route} ${width}: ${JSON.stringify(state)}`);
+              const transparent = state.stripBg === 'rgba(0, 0, 0, 0)';
+              if (state.stripBorder !== '1px' || state.stripBorderStyle !== 'solid' || (!transparent && state.stripBg !== state.footerBg)) throw new Error(`Strip visual integration failure ${route} ${width}: ${JSON.stringify(state)}`);
 
               if (width === 1440 || width === 390) {
                 const safeRoute = route === '/' ? 'home' : route.replaceAll('/', '');
