@@ -24,6 +24,42 @@ import { site } from '../data/site';
       <p>© {new Date().getFullYear()} Studio Dottor Raffaele Piras</p>
     </div>
   </div>
+
+  <div class="footer-external-strip">
+    <div class="shell footer-external-strip-inner">
+      <div class="footer-social-links">
+        <a
+          class="footer-social-link"
+          href="https://www.facebook.com/studiopiras"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Studio Piras su Facebook"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M13.5 21v-8h2.75l.41-3.2H13.5V7.76c0-.93.26-1.56 1.59-1.56h1.7V3.34c-.29-.04-1.3-.13-2.47-.13-2.44 0-4.12 1.49-4.12 4.23V9.8H7.44V13h2.76v8h3.3Z" />
+          </svg>
+        </a>
+        <a
+          class="footer-social-link"
+          href="https://www.linkedin.com/in/raffaele-piras-261a684a/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Raffaele Piras su LinkedIn"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M6.47 8.11H3.28V20h3.19V8.11ZM4.87 3A1.87 1.87 0 1 0 4.87 6.74 1.87 1.87 0 0 0 4.87 3ZM20.72 13.18c0-3.58-1.91-5.25-4.46-5.25-2.06 0-2.98 1.13-3.49 1.93V8.11H9.58V20h3.19v-5.89c0-1.55.29-3.05 2.21-3.05 1.89 0 1.91 1.77 1.91 3.15V20h3.19l.64-6.82Z" />
+          </svg>
+        </a>
+      </div>
+
+      <a
+        class="footer-external-link"
+        href="https://rpconsulting.ca.it/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >RP Consulting S.r.l. →</a>
+    </div>
+  </div>
 </footer>
 
 <style>
@@ -61,9 +97,69 @@ import { site } from '../data/site';
     cursor: pointer;
   }
 
+  .footer-external-strip {
+    border-top: 1px solid #D8D1C5;
+  }
+
+  .footer-external-strip-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .5rem 1.5rem;
+    padding-block: 1.25rem;
+  }
+
+  .footer-social-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .footer-social-link {
+    display: inline-flex;
+    width: 40px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy-soft);
+    text-decoration: none;
+    transition: color 180ms ease, opacity 180ms ease;
+  }
+
+  .footer-social-link svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .footer-external-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--navy-soft);
+    font-family: var(--font-body);
+    font-size: .95rem;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .footer-social-link:hover,
+  .footer-social-link:focus-visible,
+  .footer-external-link:hover,
+  .footer-external-link:focus-visible {
+    color: var(--accent);
+  }
+
   @media (min-width: 768px) {
     .footer-legal-links {
       justify-content: flex-end;
+    }
+
+    .footer-external-strip-inner {
+      justify-content: flex-end;
+      padding-block: 1.375rem;
     }
   }
 </style>
