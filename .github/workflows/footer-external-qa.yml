@@ -1,0 +1,121 @@
+name: Temporary footer external links QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  footer-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/footer-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/footer-preview.log
+          exit 1
+      - name: Render and verify footer
+        run: |
+          mkdir -p qa
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390,360];
+          const routes = ['/', '/studio/', '/approfondimenti/', '/download/', '/gallery/', '/contatti/'];
+          const expected = {
+            facebook: 'https://www.facebook.com/studiopiras',
+            linkedin: 'https://www.linkedin.com/in/raffaele-piras-261a684a/',
+            rp: 'https://rpconsulting.ca.it/'
+          };
+
+          for (const route of routes) {
+            for (const width of widths) {
+              const page = await browser.newPage();
+              await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+              await page.goto(`http://127.0.0.1:4321${route}`, { waitUntil: 'networkidle0' });
+              await page.evaluate(() => document.fonts.ready);
+              await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+              await new Promise(resolve => setTimeout(resolve, 120));
+
+              const state = await page.evaluate((expected) => {
+                const footer = document.querySelector('.site-footer');
+                const strip = document.querySelector('.footer-external-strip');
+                const fb = document.querySelector('a[aria-label="Studio Piras su Facebook"]');
+                const li = document.querySelector('a[aria-label="Raffaele Piras su LinkedIn"]');
+                const rp = [...document.querySelectorAll('.footer-external-link')].find(el => el.textContent?.trim() === 'RP Consulting S.r.l. →');
+                const rect = (el) => el?.getBoundingClientRect();
+                const style = (el) => el ? getComputedStyle(el) : null;
+                const fbSvg = fb?.querySelector('svg');
+                const liSvg = li?.querySelector('svg');
+                const footerText = footer?.textContent || '';
+                return {
+                  overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+                  footerExists: Boolean(footer),
+                  stripExists: Boolean(strip),
+                  officialText: [
+                    'Studio Piras',
+                    'Dottore Commercialista · Revisore Legale',
+                    'Via Sicilia, 65 · 09045 Quartu Sant’Elena (CA)',
+                    '+39 070 861888',
+                    'info@studiopiras.it',
+                    'P. IVA 02132430923',
+                    'Privacy',
+                    'Cookie',
+                    'Preferenze cookie',
+                    'Studio Dottor Raffaele Piras'
+                  ].every(text => footerText.includes(text)),
+                  fb: fb ? { href: fb.href, target: fb.target, rel: fb.rel, w: rect(fb)?.width, h: rect(fb)?.height, color: style(fb)?.color } : null,
+                  li: li ? { href: li.href, target: li.target, rel: li.rel, w: rect(li)?.width, h: rect(li)?.height, color: style(li)?.color } : null,
+                  rp: rp ? { href: rp.href, target: rp.target, rel: rp.rel, text: rp.textContent?.trim(), h: rect(rp)?.height, color: style(rp)?.color } : null,
+                  fbSvg: fbSvg ? { w: rect(fbSvg)?.width, h: rect(fbSvg)?.height, ariaHidden: fbSvg.getAttribute('aria-hidden') } : null,
+                  liSvg: liSvg ? { w: rect(liSvg)?.width, h: rect(liSvg)?.height, ariaHidden: liSvg.getAttribute('aria-hidden') } : null,
+                  stripBorder: style(strip)?.borderTopWidth,
+                  stripBorderStyle: style(strip)?.borderTopStyle,
+                  stripBg: style(strip)?.backgroundColor,
+                  footerBg: style(footer)?.backgroundColor,
+                };
+              }, expected);
+
+              if (!state.footerExists || !state.stripExists || !state.officialText) throw new Error(`Footer content failure ${route} ${width}: ${JSON.stringify(state)}`);
+              if (state.overflow) throw new Error(`Horizontal overflow ${route} ${width}`);
+              if (!state.fb || !state.li || !state.rp) throw new Error(`Missing external links ${route} ${width}`);
+              const normalized = (u) => u.replace(/\/$/, '');
+              if (normalized(state.fb.href) !== normalized(expected.facebook) || normalized(state.li.href) !== normalized(expected.linkedin) || normalized(state.rp.href) !== normalized(expected.rp)) throw new Error(`URL mismatch ${route} ${width}: ${JSON.stringify(state)}`);
+              for (const item of [state.fb, state.li, state.rp]) {
+                if (item.target !== '_blank' || !item.rel.includes('noopener') || !item.rel.includes('noreferrer')) throw new Error(`External link attributes failure ${route} ${width}: ${JSON.stringify(item)}`);
+              }
+              if (state.rp.text !== 'RP Consulting S.r.l. →') throw new Error(`RP text mismatch ${route} ${width}`);
+              if ((state.fb.h ?? 0) < 40 || (state.li.h ?? 0) < 40 || (state.rp.h ?? 0) < 40) throw new Error(`Touch target too small ${route} ${width}: ${JSON.stringify(state)}`);
+              if (Math.abs((state.fbSvg?.w ?? 0) - 20) > 0.5 || Math.abs((state.liSvg?.w ?? 0) - 20) > 0.5 || state.fbSvg?.ariaHidden !== 'true' || state.liSvg?.ariaHidden !== 'true') throw new Error(`Icon sizing/a11y failure ${route} ${width}: ${JSON.stringify(state)}`);
+              if (state.stripBorder !== '1px' || state.stripBorderStyle !== 'solid' || state.stripBg !== state.footerBg) throw new Error(`Strip visual integration failure ${route} ${width}: ${JSON.stringify(state)}`);
+
+              if (width === 1440 || width === 390) {
+                const safeRoute = route === '/' ? 'home' : route.replaceAll('/', '');
+                await page.screenshot({ path: `qa/${safeRoute}-${width}.png`, fullPage: true });
+              }
+              console.log(JSON.stringify({ route, width, state }));
+              await page.close();
+            }
+          }
+
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: footer-external-responsive-qa
+          path: qa/*.png
+          if-no-files-found: error
