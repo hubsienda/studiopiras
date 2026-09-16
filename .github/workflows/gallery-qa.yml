@@ -1,0 +1,130 @@
+name: Temporary fixed-pair Gallery QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  gallery-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Verify source constraints
+        run: |
+          set -euo pipefail
+          ! grep -Rni 'studio-12' src public --exclude-dir=node_modules
+          test ! -e public/gallery/studio-12.JPG
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/gallery-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/gallery/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/gallery-preview.log
+          exit 1
+      - name: Render and verify Gallery
+        run: |
+          mkdir -p qa
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390];
+          const expected = [
+            '/gallery/studio-01.jpg','/gallery/studio-02.JPG','/gallery/studio-03.JPG','/gallery/studio-04.JPG',
+            '/gallery/studio-05.JPG','/gallery/studio-06.JPG','/gallery/studio-07.JPG','/gallery/studio-08.JPG',
+            '/gallery/studio-09.JPG','/gallery/studio-10.JPG','/gallery/studio-11.JPG','/gallery/studio-13.JPG',
+            '/gallery/studio-14.jpeg','/gallery/studio-15.JPG','/gallery/studio-16.JPG','/gallery/studio-17.JPG','/gallery/studio-18.JPG'
+          ];
+          const expectedPairs = [
+            ['/gallery/studio-02.JPG','/gallery/studio-03.JPG'],
+            ['/gallery/studio-04.JPG','/gallery/studio-05.JPG'],
+            ['/gallery/studio-06.JPG','/gallery/studio-07.JPG'],
+            ['/gallery/studio-08.JPG','/gallery/studio-09.JPG'],
+            ['/gallery/studio-10.JPG','/gallery/studio-11.JPG'],
+            ['/gallery/studio-13.JPG','/gallery/studio-14.jpeg'],
+            ['/gallery/studio-15.JPG','/gallery/studio-16.JPG'],
+            ['/gallery/studio-17.JPG','/gallery/studio-18.JPG']
+          ];
+
+          for (const width of widths) {
+            const page = await browser.newPage();
+            await page.setViewport({ width, height: 1200, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4321/gallery/', { waitUntil: 'networkidle0' });
+            await page.evaluate(() => document.querySelectorAll('img[src]:not([src=""])').forEach(img => img.loading = 'eager'));
+            await page.waitForFunction(() => [...document.querySelectorAll('img[src]:not([src=""])')].every(img => img.complete && img.naturalWidth > 0), { timeout: 30000 });
+            await page.evaluate(() => document.fonts.ready);
+
+            const result = await page.evaluate(({expected, expectedPairs}) => {
+              const triggers = [...document.querySelectorAll('[data-gallery-trigger]')];
+              const rows = [...document.querySelectorAll('.gallery-row')];
+              const srcs = triggers.map(el => el.getAttribute('data-src'));
+              const actualPairs = rows.slice(1).map(row => [...row.querySelectorAll('[data-gallery-trigger]')].map(el => el.getAttribute('data-src')));
+              const pairGeometry = rows.slice(1).map(row => {
+                const items = [...row.querySelectorAll('[data-gallery-trigger]')];
+                const rects = items.map(el => el.getBoundingClientRect());
+                return rects.map(r => ({ top:r.top, width:r.width, height:r.height }));
+              });
+              return {
+                count: triggers.length,
+                rowCount: rows.length,
+                srcs,
+                actualPairs,
+                sequenceMatches: JSON.stringify(srcs) === JSON.stringify(expected),
+                pairsMatch: JSON.stringify(actualPairs) === JSON.stringify(expectedPairs),
+                pairGeometry,
+                overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+                brokenImages: [...document.querySelectorAll('img[src]:not([src=""])')].filter(img => !img.complete || img.naturalWidth === 0).length,
+                specialCount: rows[0]?.querySelectorAll('[data-gallery-trigger]').length ?? 0,
+              };
+            }, {expected, expectedPairs});
+
+            if (result.count !== 17 || result.rowCount !== 9 || result.specialCount !== 1) throw new Error(`Count/row failure at ${width}`);
+            if (!result.sequenceMatches || !result.pairsMatch) throw new Error(`Sequence/pair failure at ${width}: ${JSON.stringify(result.actualPairs)}`);
+            if (result.overflow || result.brokenImages) throw new Error(`Overflow/broken image at ${width}`);
+            if (width >= 768) {
+              for (const [i, pair] of result.pairGeometry.entries()) {
+                if (pair.length !== 2) throw new Error(`Pair ${i} length failure at ${width}`);
+                if (Math.abs(pair[0].top - pair[1].top) > 1 || Math.abs(pair[0].width - pair[1].width) > 1 || Math.abs(pair[0].height - pair[1].height) > 1) {
+                  throw new Error(`Pair ${i} geometry mismatch at ${width}: ${JSON.stringify(pair)}`);
+                }
+              }
+            } else {
+              for (const [i, pair] of result.pairGeometry.entries()) {
+                if (!(pair[1].top > pair[0].top + 1)) throw new Error(`Mobile pair ${i} did not stack at ${width}`);
+              }
+            }
+
+            const eleven = '[data-gallery-trigger][data-src="/gallery/studio-11.JPG"]';
+            await page.$eval(eleven, el => el.scrollIntoView({block:'center'}));
+            await page.click(eleven);
+            await page.waitForSelector('dialog[open]');
+            await page.click('[data-gallery-next]');
+            let src = await page.$eval('[data-gallery-image]', img => img.getAttribute('src'));
+            if (src !== '/gallery/studio-13.JPG') throw new Error(`Lightbox 11→13 failed at ${width}: ${src}`);
+            await page.click('[data-gallery-prev]');
+            src = await page.$eval('[data-gallery-image]', img => img.getAttribute('src'));
+            if (src !== '/gallery/studio-11.JPG') throw new Error(`Lightbox 13→11 failed at ${width}: ${src}`);
+            await page.click('[data-gallery-close]');
+
+            console.log(JSON.stringify({width, result}));
+            await page.screenshot({ path:`qa/gallery-${width}.png`, fullPage:true });
+            await page.close();
+          }
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixed-pair-gallery-qa
+          path: qa/*.png
+          if-no-files-found: error
