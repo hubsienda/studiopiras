@@ -14,7 +14,13 @@ import { site } from '../data/site';
     </div>
     <div class="text-sm leading-7 md:text-right">
       <p>P. IVA {site.vat}</p>
-      <p><a href="/privacy/">Privacy</a> · <a href="/cookie/">Cookie</a></p>
+      <p class="footer-legal-links">
+        <a href="/privacy/">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="/cookie/">Cookie</a>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="footer-preferences-button" data-cookie-preferences-open>Preferenze cookie</button>
+      </p>
       <p>© {new Date().getFullYear()} Studio Dottor Raffaele Piras</p>
     </div>
   </div>
@@ -30,5 +36,34 @@ import { site } from '../data/site';
   .footer-qualification {
     color: var(--navy-soft);
     font-weight: 600;
+  }
+
+  .footer-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0 .35rem;
+  }
+
+  .footer-preferences-button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: .07em;
+    text-underline-offset: .22em;
+    cursor: pointer;
+  }
+
+  @media (min-width: 768px) {
+    .footer-legal-links {
+      justify-content: flex-end;
+    }
   }
 </style>
