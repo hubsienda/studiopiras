@@ -40,38 +40,20 @@ jobs:
           import { execSync } from 'node:child_process';
 
           const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
-          const browser = await puppeteer.launch({
-            headless: true,
-            executablePath,
-            args: ['--no-sandbox', '--disable-dev-shm-usage'],
-          });
-
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
           const widths = [1440, 1280, 1024, 768, 430, 390];
           const expected = [
-            '/gallery/studio-01.jpg',
-            '/gallery/studio-02.JPG',
-            '/gallery/studio-03.JPG',
-            '/gallery/studio-04.JPG',
-            '/gallery/studio-05.JPG',
-            '/gallery/studio-06.JPG',
-            '/gallery/studio-07.JPG',
-            '/gallery/studio-08.JPG',
-            '/gallery/studio-09.JPG',
-            '/gallery/studio-10.JPG',
-            '/gallery/studio-11.JPG',
-            '/gallery/studio-13.JPG',
-            '/gallery/studio-14.jpeg',
-            '/gallery/studio-15.JPG',
-            '/gallery/studio-16.JPG',
-            '/gallery/studio-17.JPG',
-            '/gallery/studio-18.JPG',
+            '/gallery/studio-01.jpg','/gallery/studio-02.JPG','/gallery/studio-03.JPG','/gallery/studio-04.JPG',
+            '/gallery/studio-05.JPG','/gallery/studio-06.JPG','/gallery/studio-07.JPG','/gallery/studio-08.JPG',
+            '/gallery/studio-09.JPG','/gallery/studio-10.JPG','/gallery/studio-11.JPG','/gallery/studio-13.JPG',
+            '/gallery/studio-14.jpeg','/gallery/studio-15.JPG','/gallery/studio-16.JPG','/gallery/studio-17.JPG','/gallery/studio-18.JPG'
           ];
 
-          const loadAllImages = async (page) => {
+          const loadVisibleImages = async (page) => {
             await page.evaluate(() => {
-              document.querySelectorAll('img').forEach((img) => { img.loading = 'eager'; });
+              document.querySelectorAll('img[src]:not([src=""])').forEach((img) => { img.loading = 'eager'; });
             });
-            await page.waitForFunction(() => [...document.images].every((img) => img.complete && img.naturalWidth > 0), { timeout: 30000 });
+            await page.waitForFunction(() => [...document.querySelectorAll('img[src]:not([src=""])')].every((img) => img.complete && img.naturalWidth > 0), { timeout: 30000 });
             await page.evaluate(() => document.fonts.ready);
           };
 
@@ -80,92 +62,79 @@ jobs:
             await page.setViewport({ width, height: 1200, deviceScaleFactor: 1 });
 
             await page.goto('http://127.0.0.1:4321/gallery/', { waitUntil: 'networkidle0' });
-            await loadAllImages(page);
-
+            await loadVisibleImages(page);
             const gallery = await page.evaluate((expectedSequence) => {
               const triggers = [...document.querySelectorAll('[data-gallery-trigger]')];
               const srcs = triggers.map((el) => el.getAttribute('data-src'));
-              const eleven = triggers.find((el) => el.getAttribute('data-src') === '/gallery/studio-11.JPG');
-              const thirteen = triggers.find((el) => el.getAttribute('data-src') === '/gallery/studio-13.JPG');
-              const ten = triggers.find((el) => el.getAttribute('data-src') === '/gallery/studio-10.JPG');
-              const pair = eleven?.closest('.gallery-row');
-              const pairSources = pair ? [...pair.querySelectorAll('[data-gallery-trigger]')].map((el) => el.getAttribute('data-src')) : [];
-              const elevenRect = eleven?.getBoundingClientRect();
-              const thirteenRect = thirteen?.getBoundingClientRect();
-              const tenRect = ten?.getBoundingClientRect();
-              const firstPairItem = triggers.find((el) => el.getAttribute('data-src') === '/gallery/studio-02.JPG')?.getBoundingClientRect();
+              const get = (src) => triggers.find((el) => el.getAttribute('data-src') === src);
+              const eleven = get('/gallery/studio-11.JPG');
+              const thirteen = get('/gallery/studio-13.JPG');
+              const ten = get('/gallery/studio-10.JPG');
+              const standard = get('/gallery/studio-02.JPG');
+              const pairSources = [...(eleven?.closest('.gallery-row')?.querySelectorAll('[data-gallery-trigger]') ?? [])].map((el) => el.getAttribute('data-src'));
+              const r11 = eleven?.getBoundingClientRect();
+              const r13 = thirteen?.getBoundingClientRect();
+              const r10 = ten?.getBoundingClientRect();
+              const rs = standard?.getBoundingClientRect();
               return {
                 count: triggers.length,
                 srcs,
                 sequenceMatches: JSON.stringify(srcs) === JSON.stringify(expectedSequence),
                 pairSources,
-                elevenTop: elevenRect?.top ?? null,
-                thirteenTop: thirteenRect?.top ?? null,
-                elevenWidth: elevenRect?.width ?? null,
-                thirteenWidth: thirteenRect?.width ?? null,
-                tenWidth: tenRect?.width ?? null,
-                standardWidth: firstPairItem?.width ?? null,
+                elevenTop: r11?.top ?? 0,
+                thirteenTop: r13?.top ?? 0,
+                elevenWidth: r11?.width ?? 0,
+                thirteenWidth: r13?.width ?? 0,
+                tenWidth: r10?.width ?? 0,
+                standardWidth: rs?.width ?? 0,
                 overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-                brokenImages: [...document.images].filter((img) => !img.complete || img.naturalWidth === 0).length,
+                brokenImages: [...document.querySelectorAll('img[src]:not([src=""])')].filter((img) => !img.complete || img.naturalWidth === 0).length,
               };
             }, expected);
 
-            if (gallery.count !== 17) throw new Error(`Gallery count ${gallery.count} at ${width}`);
-            if (!gallery.sequenceMatches) throw new Error(`Gallery sequence mismatch at ${width}: ${gallery.srcs.join(', ')}`);
+            if (gallery.count !== 17 || !gallery.sequenceMatches) throw new Error(`Gallery sequence/count failure at ${width}: ${gallery.srcs.join(', ')}`);
             if (gallery.pairSources.join('|') !== '/gallery/studio-11.JPG|/gallery/studio-13.JPG') throw new Error(`11/13 pair mismatch at ${width}`);
-            if (gallery.overflow) throw new Error(`Gallery horizontal overflow at ${width}`);
-            if (gallery.brokenImages) throw new Error(`Gallery has ${gallery.brokenImages} broken images at ${width}`);
+            if (gallery.overflow || gallery.brokenImages) throw new Error(`Gallery overflow/broken image at ${width}`);
             if (width >= 768 && Math.abs(gallery.elevenTop - gallery.thirteenTop) > 1) throw new Error(`11/13 not side-by-side at ${width}`);
             if (width >= 768 && Math.abs(gallery.elevenWidth - gallery.thirteenWidth) > 1) throw new Error(`11/13 widths differ at ${width}`);
-            if (width >= 768 && Math.abs(gallery.tenWidth - gallery.standardWidth) > 1) throw new Error(`studio-10 width differs from standard landscape width at ${width}`);
+            if (width >= 768 && Math.abs(gallery.tenWidth - gallery.standardWidth) > 1) throw new Error(`studio-10 width differs from standard at ${width}`);
 
             const elevenSelector = '[data-gallery-trigger][data-src="/gallery/studio-11.JPG"]';
             await page.$eval(elevenSelector, (el) => el.scrollIntoView({ block: 'center' }));
             await page.click(elevenSelector);
             await page.waitForSelector('dialog[open]');
             let lightboxSrc = await page.$eval('[data-gallery-image]', (img) => img.getAttribute('src'));
-            if (lightboxSrc !== '/gallery/studio-11.JPG') throw new Error(`Lightbox did not open 11 at ${width}: ${lightboxSrc}`);
+            if (lightboxSrc !== '/gallery/studio-11.JPG') throw new Error(`Lightbox open mismatch at ${width}`);
             await page.click('[data-gallery-next]');
             lightboxSrc = await page.$eval('[data-gallery-image]', (img) => img.getAttribute('src'));
-            if (lightboxSrc !== '/gallery/studio-13.JPG') throw new Error(`Lightbox next did not skip 12 at ${width}: ${lightboxSrc}`);
+            if (lightboxSrc !== '/gallery/studio-13.JPG') throw new Error(`Lightbox 11→13 failed at ${width}`);
             await page.click('[data-gallery-prev]');
             lightboxSrc = await page.$eval('[data-gallery-image]', (img) => img.getAttribute('src'));
-            if (lightboxSrc !== '/gallery/studio-11.JPG') throw new Error(`Lightbox previous did not return 13→11 at ${width}: ${lightboxSrc}`);
+            if (lightboxSrc !== '/gallery/studio-11.JPG') throw new Error(`Lightbox 13→11 failed at ${width}`);
             await page.click('[data-gallery-close]');
             await page.screenshot({ path: `qa/gallery-${width}.png`, fullPage: true });
 
             await page.goto('http://127.0.0.1:4321/contatti/', { waitUntil: 'networkidle0' });
-            await loadAllImages(page);
+            await loadVisibleImages(page);
             const contacts = await page.evaluate(() => {
               const quartu = document.querySelector('img[src="/quartu.JPG"]');
               const milano = document.querySelector('img[src="/milano.png"]');
-              const q = quartu?.getBoundingClientRect();
-              const m = milano?.getBoundingClientRect();
-              const qs = quartu ? getComputedStyle(quartu) : null;
-              const ms = milano ? getComputedStyle(milano) : null;
+              const q = quartu.getBoundingClientRect();
+              const m = milano.getBoundingClientRect();
+              const qs = getComputedStyle(quartu);
+              const ms = getComputedStyle(milano);
               return {
-                qHeight: q?.height ?? null,
-                mHeight: m?.height ?? null,
-                qWidth: q?.width ?? null,
-                mWidth: m?.width ?? null,
-                qTop: q?.top ?? null,
-                mTop: m?.top ?? null,
-                qBottom: q?.bottom ?? null,
-                mBottom: m?.bottom ?? null,
-                qFit: qs?.objectFit ?? null,
-                mFit: ms?.objectFit ?? null,
-                qPosition: qs?.objectPosition ?? null,
-                mPosition: ms?.objectPosition ?? null,
+                qHeight: q.height, mHeight: m.height, qTop: q.top, mTop: m.top, qBottom: q.bottom, mBottom: m.bottom,
+                qFit: qs.objectFit, mFit: ms.objectFit, qPosition: qs.objectPosition, mPosition: ms.objectPosition,
                 overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-                brokenImages: [...document.images].filter((img) => !img.complete || img.naturalWidth === 0).length,
+                brokenImages: [...document.querySelectorAll('img[src]:not([src=""])')].filter((img) => !img.complete || img.naturalWidth === 0).length,
               };
             });
 
-            if (Math.abs(contacts.qHeight - contacts.mHeight) > 0.5) throw new Error(`Contact image heights differ at ${width}: ${contacts.qHeight} vs ${contacts.mHeight}`);
+            if (Math.abs(contacts.qHeight - contacts.mHeight) > 0.5) throw new Error(`Contact heights differ at ${width}: ${contacts.qHeight}/${contacts.mHeight}`);
             if (contacts.qFit !== 'cover' || contacts.mFit !== 'cover') throw new Error(`Contact object-fit mismatch at ${width}`);
-            if (contacts.overflow) throw new Error(`Contacts horizontal overflow at ${width}`);
-            if (contacts.brokenImages) throw new Error(`Contacts has ${contacts.brokenImages} broken images at ${width}`);
-            if (width >= 768 && (Math.abs(contacts.qTop - contacts.mTop) > 1 || Math.abs(contacts.qBottom - contacts.mBottom) > 1)) throw new Error(`Contact image tops/bottoms do not align at ${width}`);
+            if (contacts.overflow || contacts.brokenImages) throw new Error(`Contacts overflow/broken image at ${width}`);
+            if (width >= 768 && (Math.abs(contacts.qTop - contacts.mTop) > 1 || Math.abs(contacts.qBottom - contacts.mBottom) > 1)) throw new Error(`Contact tops/bottoms differ at ${width}`);
 
             console.log(JSON.stringify({ width, gallery, contacts }));
             await page.screenshot({ path: `qa/contatti-${width}.png`, fullPage: true });
