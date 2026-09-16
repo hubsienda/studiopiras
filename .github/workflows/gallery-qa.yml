@@ -64,6 +64,15 @@ jobs:
             await page.evaluate(() => document.querySelectorAll('img[src]:not([src=""])').forEach(img => img.loading = 'eager'));
             await page.waitForFunction(() => [...document.querySelectorAll('img[src]:not([src=""])')].every(img => img.complete && img.naturalWidth > 0), { timeout: 30000 });
             await page.evaluate(() => document.fonts.ready);
+            await page.evaluate(async () => {
+              const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+              for (let y = 0; y < document.documentElement.scrollHeight; y += 700) {
+                window.scrollTo(0, y);
+                await delay(70);
+              }
+              window.scrollTo(0, 0);
+              await delay(250);
+            });
 
             const result = await page.evaluate(({expected, expectedPairs}) => {
               const triggers = [...document.querySelectorAll('[data-gallery-trigger]')];
@@ -116,6 +125,7 @@ jobs:
             src = await page.$eval('[data-gallery-image]', img => img.getAttribute('src'));
             if (src !== '/gallery/studio-11.JPG') throw new Error(`Lightbox 13→11 failed at ${width}: ${src}`);
             await page.click('[data-gallery-close]');
+            await page.evaluate(() => window.scrollTo(0, 0));
 
             console.log(JSON.stringify({width, result}));
             await page.screenshot({ path:`qa/gallery-${width}.png`, fullPage:true });
