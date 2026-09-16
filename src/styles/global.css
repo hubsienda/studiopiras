@@ -146,7 +146,7 @@ a {
 .editorial-link {
   display: inline-flex;
   align-items: center;
-  color: inherit;
+  color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--text-body);
   font-weight: 400;
