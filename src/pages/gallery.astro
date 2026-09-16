@@ -12,7 +12,7 @@ type GalleryImage = {
 };
 
 type GalleryRow = {
-  layout: 'special' | 'landscape-pair' | 'portrait-single';
+  layout: 'special' | 'landscape-pair' | 'landscape-single' | 'portrait-single';
   indexes: number[];
 };
 
@@ -28,7 +28,6 @@ const galleryImages: GalleryImage[] = [
   { src: '/gallery/studio-09.JPG', alt: 'Ambiente dello Studio Piras', width: 1299, height: 866, kind: 'landscape' },
   { src: '/gallery/studio-10.JPG', alt: 'Spazi dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
   { src: '/gallery/studio-11.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
-  { src: '/gallery/studio-12.JPG', alt: 'Spazi dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
   { src: '/gallery/studio-13.JPG', alt: 'Ambiente dello Studio Piras', width: 1800, height: 1200, kind: 'landscape' },
   { src: '/gallery/studio-14.jpeg', alt: 'Spazi dello Studio Piras', width: 768, height: 1024, kind: 'portrait' },
   { src: '/gallery/studio-15.JPG', alt: 'Ambiente dello Studio Piras', width: 1200, height: 800, kind: 'landscape' },
@@ -43,11 +42,11 @@ const galleryRows: GalleryRow[] = [
   { layout: 'landscape-pair', indexes: [3, 4] },
   { layout: 'landscape-pair', indexes: [5, 6] },
   { layout: 'landscape-pair', indexes: [7, 8] },
-  { layout: 'landscape-pair', indexes: [9, 10] },
-  { layout: 'landscape-pair', indexes: [11, 12] },
-  { layout: 'portrait-single', indexes: [13] },
-  { layout: 'landscape-pair', indexes: [14, 15] },
-  { layout: 'landscape-pair', indexes: [16, 17] },
+  { layout: 'landscape-single', indexes: [9] },
+  { layout: 'landscape-pair', indexes: [10, 11] },
+  { layout: 'portrait-single', indexes: [12] },
+  { layout: 'landscape-pair', indexes: [13, 14] },
+  { layout: 'landscape-pair', indexes: [15, 16] },
 ];
 ---
 <BaseLayout
@@ -139,18 +138,24 @@ const galleryRows: GalleryRow[] = [
   }
 
   .gallery-sequence {
+    --gallery-gap: clamp(1.5rem, 2.4vw, 2rem);
     display: grid;
-    gap: clamp(1.5rem, 2.4vw, 2rem);
+    gap: var(--gallery-gap);
   }
 
   .gallery-row {
     display: grid;
-    gap: clamp(1.5rem, 2.4vw, 2rem);
+    gap: var(--gallery-gap);
     align-items: stretch;
   }
 
   .gallery-row--landscape-pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gallery-row--landscape-single {
+    width: calc((100% - var(--gallery-gap)) / 2);
+    margin-inline: auto;
   }
 
   .gallery-row--portrait-single {
@@ -319,15 +324,15 @@ const galleryRows: GalleryRow[] = [
   }
 
   @media (max-width: 767px) {
-    .gallery-sequence,
-    .gallery-row {
-      gap: 1.125rem;
+    .gallery-sequence {
+      --gallery-gap: 1.125rem;
     }
 
     .gallery-row--landscape-pair {
       grid-template-columns: 1fr;
     }
 
+    .gallery-row--landscape-single,
     .gallery-row--portrait-single {
       width: 100%;
     }
