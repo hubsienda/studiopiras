@@ -1,4 +1,45 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro'; import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
 ---
-<BaseLayout title="Cookie Policy" description="Informativa sui cookie e sugli strumenti tecnici utilizzati dal sito Studio Piras."><article class="shell py-16 md:py-24"><p class="eyebrow">Informativa</p><h1 class="display mt-5">Cookie Policy</h1><p class="sans mt-4 text-sm text-[var(--muted)]">Studio Dott. Raffaele Piras · Ultimo aggiornamento: 15 settembre 2026</p><div class="body-copy prose-width mt-10 space-y-7"><p>La presente Cookie Policy descrive l’uso di cookie e strumenti analoghi sul sito di Studio Dott. Raffaele Piras e integra la Privacy Policy.</p><section><h2 class="text-2xl">1. Titolare</h2><p class="mt-3">Studio Dott. Raffaele Piras, Via Sicilia 65, 09045 Quartu Sant’Elena (CA), Tel. {site.phone}, P. IVA {site.vat}, Email: <a href={`mailto:${site.email}`}>{site.email}</a>.</p></section><section><h2 class="text-2xl">2. Cookie utilizzati</h2><p class="mt-3">Il sito è progettato per funzionare senza cookie di marketing, profilazione o analisi. Non sono installati Google Analytics, Meta Pixel, sistemi pubblicitari o strumenti equivalenti. L’infrastruttura di hosting può utilizzare esclusivamente strumenti tecnici strettamente necessari alla sicurezza e al corretto funzionamento delle pagine.</p></section><section><h2 class="text-2xl">3. Servizi esterni</h2><p class="mt-3">Le mappe non sono incorporate nelle pagine: i collegamenti aprono un servizio esterno soltanto quando l’utente li seleziona.</p></section><section><h2 class="text-2xl">4. Gestione e aggiornamenti</h2><p class="mt-3">Poiché non sono utilizzati cookie facoltativi soggetti a consenso, questa versione del sito non mostra un banner. Se in futuro verranno introdotti strumenti ulteriori, l’informativa e gli eventuali meccanismi di consenso saranno aggiornati prima dell’attivazione.</p></section></div></article></BaseLayout>
+<BaseLayout title="Cookie Policy" description="Informativa sui cookie e sugli strumenti tecnici utilizzati dal sito Studio Piras.">
+  <article class="shell py-16 md:py-24">
+    <p class="eyebrow">Informativa</p>
+    <h1 class="display mt-5">Cookie Policy</h1>
+    <p class="sans mt-4 text-sm text-[var(--muted)]">Studio Dott. Raffaele Piras · Ultimo aggiornamento: 16 settembre 2026</p>
+
+    <div class="body-copy prose-width mt-10 space-y-7">
+      <p>La presente Cookie Policy descrive l’uso di cookie e strumenti analoghi sul sito di Studio Dott. Raffaele Piras e integra la Privacy Policy.</p>
+
+      <section>
+        <h2 class="text-2xl">1. Titolare</h2>
+        <p class="mt-3">Studio Dott. Raffaele Piras, Via Sicilia 65, 09045 Quartu Sant’Elena (CA), Tel. {site.phone}, P. IVA {site.vat}, Email: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl">2. Configurazione attuale del sito</h2>
+        <p class="mt-3">Il sito non utilizza cookie o strumenti facoltativi di analisi, marketing o profilazione. Non sono installati Google Analytics, Google Tag Manager, Meta Pixel, sistemi pubblicitari o strumenti equivalenti. I caratteri tipografici utilizzati dal sito sono distribuiti insieme alle risorse del sito e non richiedono il caricamento da servizi esterni.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl">3. Funzionalità tecniche</h2>
+        <p class="mt-3">Il sito utilizza esclusivamente funzionalità tecniche necessarie alla corretta erogazione delle pagine. Allo stato attuale non viene impostato dal sito un cookie di consenso, perché non esistono categorie facoltative sulle quali richiedere o memorizzare una scelta.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl">4. Servizi esterni</h2>
+        <p class="mt-3">Le mappe non sono incorporate nelle pagine. I collegamenti alle mappe aprono un servizio esterno soltanto quando l’utente seleziona volontariamente il relativo link. Lo stesso vale per i collegamenti email e telefono, che utilizzano le funzionalità del dispositivo o del servizio scelto dall’utente.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl">5. Preferenze cookie</h2>
+        <p class="mt-3">Il collegamento “Preferenze cookie” presente nel Footer apre un pannello informativo che mostra la configurazione attuale del sito. Poiché non sono presenti strumenti facoltativi, non vengono proposte scelte prive di effetto reale e non viene mostrato un banner di consenso al primo accesso.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl">6. Aggiornamenti</h2>
+        <p class="mt-3">Se in futuro verranno introdotti strumenti facoltativi soggetti a consenso, la presente informativa e il sistema di preferenze saranno aggiornati prima della loro attivazione, in modo che tali strumenti restino inattivi fino alla scelta dell’utente.</p>
+      </section>
+    </div>
+  </article>
+</BaseLayout>
