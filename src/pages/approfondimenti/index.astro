@@ -1,5 +1,45 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'; import { getCollection } from 'astro:content';
-const articles=(await getCollection('approfondimenti',({data})=>!data.draft)).sort((a,b)=>(b.data.pubDate?.getTime()??0)-(a.data.pubDate?.getTime()??0));
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('approfondimenti', ({ data }) => !data.draft))
+  .sort((a, b) => (b.data.pubDate?.getTime() ?? 0) - (a.data.pubDate?.getTime() ?? 0));
 ---
-<BaseLayout title="Approfondimenti" description="Analisi e riflessioni dello Studio Piras su operazioni societarie, fiscalità d’impresa, gruppi, patrimonio e finanza."><section class="shell py-16 md:py-24"><p class="eyebrow">Approfondimenti</p><h1 class="display editorial-heading--short mt-6">Analisi per decisioni che meritano tempo.</h1><div class="prose-width body-copy mt-9 space-y-4"><p>Analisi e riflessioni su operazioni societarie, fiscalità d’impresa, gruppi, patrimonio e finanza.</p><p>Contributi pensati per offrire una lettura chiara delle questioni che più spesso accompagnano le decisioni dell’imprenditore.</p></div></section><section class="rule shell py-12">{articles.length?<div class="grid gap-10 md:grid-cols-2">{articles.map(a=><article class="border-t border-[var(--line)] pt-6"><p class="eyebrow">{a.data.area??'Approfondimento'}</p><h2 class="mt-4 text-[1.65rem] font-semibold leading-[1.2]"><a class="no-underline" href={`/approfondimenti/${a.id}/`}>{a.data.title}</a></h2><p class="mt-4 max-w-[62ch] leading-[1.65] text-[var(--muted)]">{a.data.description}</p><p class="mt-5 text-sm font-semibold"><a href={`/approfondimenti/${a.id}/`}>Leggi l’approfondimento →</a></p></article>)}</div>:<div class="prose-width"><h2 class="section-title">Una sezione editoriale, non un notiziario fiscale.</h2><p class="body-copy mt-6">Gli approfondimenti saranno pubblicati progressivamente. Lo Studio privilegia pochi contributi sostanziali, durevoli e riconoscibili rispetto a un flusso di aggiornamenti quotidiani.</p></div>}</section></BaseLayout>
+
+<BaseLayout
+  title="Approfondimenti"
+  description="Analisi e riflessioni dello Studio Piras su operazioni societarie, fiscalità d’impresa, gruppi, patrimonio e finanza."
+>
+  <section class="shell py-16 md:py-24">
+    <p class="eyebrow">Approfondimenti</p>
+    <h1 class="display editorial-heading--short mt-6">Analisi per decisioni che meritano tempo.</h1>
+    <div class="prose-width body-copy mt-9 space-y-4">
+      <p>Analisi e riflessioni su operazioni societarie, fiscalità d’impresa, gruppi, patrimonio e finanza.</p>
+      <p>Contributi pensati per offrire una lettura chiara delle questioni che più spesso accompagnano le decisioni dell’imprenditore.</p>
+    </div>
+  </section>
+
+  <section class="rule shell py-16 md:py-20">
+    <div class="prose-width">
+      <p class="eyebrow">Pubblicazioni</p>
+      <h2 class="section-title mt-5">Questioni complesse, analisi chiare.</h2>
+      <p class="body-copy mt-6">Una raccolta di approfondimenti dedicati ai temi fiscali, societari, patrimoniali e finanziari che richiedono valutazioni attente e una visione integrata.</p>
+      <p class="mt-7"><a href="/download/" class="editorial-link">Consulta le pubblicazioni</a></p>
+    </div>
+  </section>
+
+  {articles.length > 0 && (
+    <section class="rule shell py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-2">
+        {articles.map((article) => (
+          <article class="border-t border-[var(--line)] pt-6">
+            <p class="eyebrow">{article.data.area ?? 'Approfondimento'}</p>
+            <h2 class="mt-4 text-[1.65rem] font-semibold leading-[1.2]"><a class="no-underline" href={`/approfondimenti/${article.id}/`}>{article.data.title}</a></h2>
+            <p class="mt-4 max-w-[62ch] leading-[1.65] text-[var(--muted)]">{article.data.description}</p>
+            <p class="mt-5 text-sm font-semibold"><a href={`/approfondimenti/${article.id}/`}>Leggi l’approfondimento →</a></p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>
