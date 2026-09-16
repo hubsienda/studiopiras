@@ -113,6 +113,10 @@ a {
   text-wrap: balance;
 }
 
+.editorial-heading--short {
+  max-width: none;
+}
+
 .section-title {
   font-size: var(--heading-2);
   font-weight: 600;
@@ -145,6 +149,14 @@ a {
 
 .sans {
   font-family: var(--font-body);
+}
+
+@media (min-width: 1024px) {
+  .editorial-heading--short {
+    font-size: clamp(2.25rem, 3vw, 2.625rem);
+    white-space: nowrap;
+    text-wrap: nowrap;
+  }
 }
 
 @media (max-width: 639px) {
