@@ -122,6 +122,8 @@ jobs:
               throw new Error(`Activity areas QA failure ${width}: ${JSON.stringify(state)}`);
             }
 
+            await page.evaluate(() => window.scrollTo(0, 0));
+            await new Promise(resolve => setTimeout(resolve, 120));
             await page.screenshot({ path: `qa/areas-${width}.png`, fullPage: true });
             console.log(JSON.stringify({ width, ok: true, h1LineCount: state.h1LineCount }));
             await page.close();
