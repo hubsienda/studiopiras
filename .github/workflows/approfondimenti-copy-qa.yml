@@ -1,0 +1,108 @@
+name: Temporary approfondimenti copy QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  approfondimenti-copy-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/approfondimenti-copy-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/approfondimenti/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/approfondimenti-copy-preview.log
+          exit 1
+      - name: Render and verify approfondimenti copy
+        run: |
+          mkdir -p qa
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390,360];
+          const expected = {
+            title1: 'Valutazioni approfondite per scelte di lungo termine.',
+            p1: "Riflessioni e approfondimenti dedicati ad assetti societari, fiscalità d'impresa, architetture di gruppo, gestione patrimoniale e risorse finanziarie.",
+            p2: "Contributi orientati a fornire un'interpretazione nitida delle dinamiche che guidano costantemente i processi decisionali dell'imprenditore.",
+            title2: 'Tematiche complesse, soluzioni trasparenti.',
+            p3: 'Un compendio di approfondimenti incentrato sulle tematiche fiscali, tributarie, societarie, patrimoniali e finanziarie che richiedono un esame rigoroso e un approccio multidisciplinare.'
+          };
+          const oldTexts = [
+            'Analisi per decisioni che meritano tempo.',
+            'Analisi e riflessioni su operazioni societarie, fiscalità d’impresa, gruppi, patrimonio e finanza.',
+            'Contributi pensati per offrire una lettura chiara delle questioni che più spesso accompagnano le decisioni dell’imprenditore.',
+            'Questioni complesse, analisi chiare.',
+            'Una raccolta di approfondimenti dedicati ai temi fiscali, societari, patrimoniali e finanziari che richiedono valutazioni attente e una visione integrata.'
+          ];
+
+          for (const width of widths) {
+            const page = await browser.newPage();
+            await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4321/approfondimenti/', { waitUntil: 'networkidle0' });
+            await page.evaluate(() => document.fonts.ready);
+
+            const state = await page.evaluate(({ expected, oldTexts, width }) => {
+              const h1 = document.querySelector('h1');
+              const firstCopy = h1?.nextElementSibling;
+              const firstParagraphs = firstCopy ? [...firstCopy.querySelectorAll(':scope > p')].map(p => p.textContent?.trim()) : [];
+              const publicationSection = [...document.querySelectorAll('section')].find(section => section.textContent?.includes('Pubblicazioni'));
+              const h2 = publicationSection?.querySelector('h2');
+              const p3 = publicationSection?.querySelector('p.body-copy');
+              const cta = publicationSection?.querySelector('a.editorial-link');
+              const bodyText = document.body.textContent || '';
+
+              const lineCount = (element) => {
+                if (!element) return 0;
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                const tops = [...range.getClientRects()].filter(r => r.width > 0 && r.height > 0).map(r => Math.round(r.top));
+                return new Set(tops).size;
+              };
+
+              return {
+                title1Exact: h1?.textContent?.trim() === expected.title1,
+                firstParagraphsExact: firstParagraphs.length === 2 && firstParagraphs[0] === expected.p1 && firstParagraphs[1] === expected.p2,
+                title2Exact: h2?.textContent?.trim() === expected.title2,
+                p3Exact: p3?.textContent?.trim() === expected.p3,
+                oldAbsent: oldTexts.every(text => !bodyText.includes(text)),
+                ctaText: cta?.textContent?.trim(),
+                ctaHref: cta?.getAttribute('href'),
+                publicationLabel: publicationSection?.querySelector('.eyebrow')?.textContent?.trim(),
+                overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+                h1LineCount: lineCount(h1),
+                h2LineCount: lineCount(h2),
+                desktopH1OneLine: width < 1024 || lineCount(h1) === 1
+              };
+            }, { expected, oldTexts, width });
+
+            if (!state.title1Exact || !state.firstParagraphsExact || !state.title2Exact || !state.p3Exact || !state.oldAbsent || state.ctaText !== 'Consulta le pubblicazioni' || state.ctaHref !== '/download/' || state.publicationLabel !== 'Pubblicazioni' || state.overflow || !state.desktopH1OneLine) {
+              throw new Error(`Approfondimenti QA failure ${width}: ${JSON.stringify(state)}`);
+            }
+
+            await page.screenshot({ path: `qa/approfondimenti-${width}.png`, fullPage: true });
+            console.log(JSON.stringify({ width, ok: true, h1LineCount: state.h1LineCount, h2LineCount: state.h2LineCount }));
+            await page.close();
+          }
+
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: approfondimenti-responsive-qa
+          path: qa/*.png
+          if-no-files-found: error
