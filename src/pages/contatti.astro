@@ -20,14 +20,11 @@ import { site } from '../data/site';
               ? <img src="/quartu.JPG" alt="Sede dello Studio Piras a Quartu Sant’Elena" width="1200" height="800" loading="lazy" decoding="async" class="office-photo office-photo--quartu" />
               : <img src="/milano.png" alt="Sede dello Studio Piras a Milano" width="547" height="350" loading="lazy" decoding="async" class="office-photo office-photo--milano" />}
           </div>
-          <p class="body-copy mt-6">{office.address}</p>
-          {index === 1 && <p class="body-copy">Email: <a href={`mailto:${site.email}`}>{site.email}</a></p>}
-          {index === 0 && (
-            <div class="mt-5 text-[1rem] leading-[1.65]">
-              <p>Telefono: <a href={`tel:${site.phone.replace(/\s/g,'')}`}>{site.phone}</a></p>
-              <p>Email: <a href={`mailto:${site.email}`}>{site.email}</a></p>
-            </div>
-          )}
+          <p class="office-address body-copy mt-6">{office.address}</p>
+          <div class="office-contact-details body-copy mt-5">
+            {index === 0 && <p>Telefono: <a href={`tel:${site.phone.replace(/\s/g,'')}`}>{site.phone}</a></p>}
+            <p>Email: <a href={`mailto:${site.email}`}>{site.email}</a></p>
+          </div>
           <p class="mt-6 text-sm font-semibold"><a href={office.map} rel="noreferrer" target="_blank">Apri la mappa →</a></p>
         </article>
       ))}
@@ -64,5 +61,9 @@ import { site } from '../data/site';
 
   .office-photo--milano {
     object-position: 50% 50%;
+  }
+
+  .office-contact-details p + p {
+    margin-top: 0;
   }
 </style>
