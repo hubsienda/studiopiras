@@ -1,0 +1,59 @@
+name: Temporary contacts baseline QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  contacts-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/contacts-baseline.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/contatti/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/contacts-baseline.log
+          exit 1
+      - name: Inspect computed styles
+        run: |
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const page = await browser.newPage();
+          await page.setViewport({width:1440,height:1000,deviceScaleFactor:1});
+          await page.goto('http://127.0.0.1:4321/contatti/', {waitUntil:'networkidle0'});
+          await page.evaluate(() => document.fonts.ready);
+          const data = await page.evaluate(() => {
+            const articles=[...document.querySelectorAll('section.rule article')];
+            const q=articles[0], m=articles[1];
+            const qAddress=q.querySelector('p.body-copy.mt-6');
+            const qDetails=qAddress.nextElementSibling;
+            const qPhone=qDetails?.querySelector('a[href^="tel:"]');
+            const qEmail=qDetails?.querySelector('a[href^="mailto:"]');
+            const mAddress=m.querySelector('p.body-copy.mt-6');
+            const mEmailP=mAddress.nextElementSibling;
+            const mEmail=mEmailP?.querySelector('a[href^="mailto:"]');
+            const info=(el)=>{const s=getComputedStyle(el); return {fontSize:s.fontSize,lineHeight:s.lineHeight,fontFamily:s.fontFamily,fontWeight:s.fontWeight,marginTop:s.marginTop,marginBottom:s.marginBottom,top:el.getBoundingClientRect().top,bottom:el.getBoundingClientRect().bottom};};
+            return {
+              qAddress:info(qAddress),qPhone:info(qPhone),qEmail:info(qEmail),mAddress:info(mAddress),mEmail:info(mEmail),
+              qGap:qPhone.closest('p').getBoundingClientRect().top-qAddress.getBoundingClientRect().bottom,
+              mGap:mEmailP.getBoundingClientRect().top-mAddress.getBoundingClientRect().bottom,
+              qDetailsClass:qDetails.className,mEmailClass:mEmailP.className
+            };
+          });
+          console.log('BASELINE_COMPUTED='+JSON.stringify(data));
+          await browser.close();
+          NODE
