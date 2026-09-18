@@ -21,6 +21,7 @@ import { site } from '../data/site';
               : <img src="/milano.png" alt="Sede dello Studio Piras a Milano" width="547" height="350" loading="lazy" decoding="async" class="office-photo office-photo--milano" />}
           </div>
           <p class="body-copy mt-6">{office.address}</p>
+          {index === 1 && <p class="body-copy">Email: <a href={`mailto:${site.email}`}>{site.email}</a></p>}
           {index === 0 && (
             <div class="mt-5 text-[1rem] leading-[1.65]">
               <p>Telefono: <a href={`tel:${site.phone.replace(/\s/g,'')}`}>{site.phone}</a></p>
