@@ -1,0 +1,91 @@
+name: Temporary download metadata QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  download-meta-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/download-meta-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/download/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/download-meta-preview.log
+          exit 1
+      - name: Verify rendered metadata
+        run: |
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440, 768, 390];
+          const expectedMeta = ['pdf · 6 pagine','pdf · 6 pagine','pdf · 8 pagine','pdf · 8 pagine','pdf · 9 pagine','pdf · 9 pagine','pdf · 9 pagine','pdf · 9 pagine'];
+          const expectedTitles = [
+            "Pianificare il passaggio generazionale dell'impresa",
+            'Trust e pianificazione successoria del capitalismo familiare',
+            'Holding e passaggio generazionale — dalla proprietà alla regia',
+            'Società semplice e godimento dei beni da parte dei soci',
+            'Trust, holding e fiscalità tra Italia e strutture estere',
+            'Holding: la regia del gruppo tra governance e fiscalità',
+            'Trust o società semplice? Due strumenti, due logiche',
+            "Composizione negoziata della crisi d'impresa"
+          ];
+          const expectedSubtitles = [
+            'La holding di famiglia come architettura di continuità, governance e patrimonio',
+            'Quando il testamento non basta: governare oggi la continuità di domani',
+            'Centralizzare il controllo, governare il patrimonio, preparare la continuità',
+            "La Cassazione ridisegna il confine tra patrimonio familiare e beni d'impresa",
+            'Separazione patrimoniale, tassazione dei redditi, residenza e limiti della pianificazione',
+            'Tipologie, PEX, dividendi, consolidato, IVA e finanza infragruppo',
+            'Protezione, governance e successione del patrimonio familiare',
+            'Intervenire prima che la difficoltà diventi irreversibile'
+          ];
+          const expectedPdfs = [
+            '/articoli/Studio_Piras_01_Pianificazione_Passaggio_Generazionale_6p.pdf',
+            '/articoli/Studio_Piras_02_Trust_Pianificazione_Successoria_6p-1.pdf',
+            '/articoli/Studio_Piras_03_Holding_Passaggio_Generazionale_8p.pdf',
+            '/articoli/Studio_Piras_04_Societa_Semplice_Godimento_Beni_8p.pdf',
+            '/articoli/Studio_Piras_05_Trust_Holding_Fiscalita_Internazionale_9p.pdf',
+            '/articoli/Studio_Piras_06_Holding_Strumento_Strategico_Gruppo_9p.pdf',
+            '/articoli/Studio_Piras_07_Trust_o_Societa_Semplice_9p.pdf',
+            '/articoli/Studio_Piras_08_Composizione_Negoziata_Crisi_Impresa_9p.pdf'
+          ];
+          for (const width of widths) {
+            const page = await browser.newPage();
+            await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4321/download/', { waitUntil: 'networkidle0' });
+            await page.evaluate(() => document.fonts.ready);
+            const state = await page.evaluate(() => ({
+              meta: [...document.querySelectorAll('.publication-meta')].map(el => el.textContent.trim()),
+              titles: [...document.querySelectorAll('.publication-title')].map(el => el.textContent.trim()),
+              subtitles: [...document.querySelectorAll('.publication-subtitle')].map(el => el.textContent.trim()),
+              ctas: [...document.querySelectorAll('.publication-download')].map(a => ({ text:a.textContent.trim(), href:a.getAttribute('href') })),
+              body: document.body.textContent,
+              overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+            }));
+            if (JSON.stringify(state.meta) !== JSON.stringify(expectedMeta) ||
+                JSON.stringify(state.titles) !== JSON.stringify(expectedTitles) ||
+                JSON.stringify(state.subtitles) !== JSON.stringify(expectedSubtitles) ||
+                state.ctas.length !== 8 || state.ctas.some((c,i) => c.text !== "Scarica l'approfondimento" || c.href !== expectedPdfs[i]) ||
+                state.body.includes('Settembre 2026') || state.overflow) {
+              throw new Error(`DOWNLOAD_META_QA_${width}=${JSON.stringify(state)}`);
+            }
+            console.log(`DOWNLOAD_META_QA_${width}=PASS`);
+            await page.close();
+          }
+          await browser.close();
+          NODE
