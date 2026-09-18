@@ -1,0 +1,98 @@
+name: Temporary contacts email QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  contacts-email-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/contacts-email-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/contatti/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/contacts-email-preview.log
+          exit 1
+      - name: Render and verify contacts email
+        run: |
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390,360];
+
+          for (const width of widths) {
+            const page = await browser.newPage();
+            await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4321/contatti/', { waitUntil: 'networkidle0' });
+            await page.evaluate(() => document.fonts.ready);
+
+            const state = await page.evaluate(() => {
+              const articles = [...document.querySelectorAll('section.rule article')];
+              const quartu = articles.find(a => a.querySelector('h2')?.textContent?.trim() === 'Quartu Sant’Elena');
+              const milano = articles.find(a => a.querySelector('h2')?.textContent?.trim() === 'Milano');
+              const milanoAddress = milano?.querySelector('p.body-copy.mt-6');
+              const milanoEmailP = milanoAddress?.nextElementSibling;
+              const milanoEmailLink = milanoEmailP?.querySelector('a');
+              const quartuImg = quartu?.querySelector('img');
+              const milanoImg = milano?.querySelector('img');
+              const qFrame = quartu?.querySelector('.office-photo-frame');
+              const mFrame = milano?.querySelector('.office-photo-frame');
+              const qStyle = qFrame ? getComputedStyle(qFrame) : null;
+              const mStyle = mFrame ? getComputedStyle(mFrame) : null;
+              return {
+                articleCount: articles.length,
+                milanoAddress: milanoAddress?.textContent?.trim(),
+                milanoEmailText: milanoEmailP?.textContent?.trim(),
+                milanoEmailHref: milanoEmailLink?.getAttribute('href'),
+                quartuEmailHref: quartu?.querySelector('a[href^="mailto:"]')?.getAttribute('href'),
+                quartuImgSrc: quartuImg?.getAttribute('src'),
+                milanoImgSrc: milanoImg?.getAttribute('src'),
+                quartuImgWidth: quartuImg?.getAttribute('width'),
+                quartuImgHeight: quartuImg?.getAttribute('height'),
+                milanoImgWidth: milanoImg?.getAttribute('width'),
+                milanoImgHeight: milanoImg?.getAttribute('height'),
+                quartuClass: quartuImg?.getAttribute('class'),
+                milanoClass: milanoImg?.getAttribute('class'),
+                quartuAspect: qStyle?.aspectRatio,
+                milanoAspect: mStyle?.aspectRatio,
+                overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+              };
+            });
+
+            if (
+              state.articleCount !== 2 ||
+              state.milanoAddress !== 'Via G.B. Pergolesi, 2 – 20124 Milano' ||
+              state.milanoEmailText !== 'Email: info@studiopiras.it' ||
+              state.milanoEmailHref !== 'mailto:info@studiopiras.it' ||
+              state.quartuEmailHref !== 'mailto:info@studiopiras.it' ||
+              state.quartuImgSrc !== '/quartu.JPG' || state.milanoImgSrc !== '/milano.png' ||
+              state.quartuImgWidth !== '1200' || state.quartuImgHeight !== '800' ||
+              state.milanoImgWidth !== '547' || state.milanoImgHeight !== '350' ||
+              !state.quartuClass?.includes('office-photo--quartu') || !state.milanoClass?.includes('office-photo--milano') ||
+              state.quartuAspect !== '3 / 2' || state.milanoAspect !== '3 / 2' ||
+              state.overflow
+            ) {
+              throw new Error(`Contacts QA failure ${width}: ${JSON.stringify(state)}`);
+            }
+
+            console.log(JSON.stringify({ width, ok: true }));
+            await page.close();
+          }
+
+          await browser.close();
+          NODE
