@@ -18,18 +18,18 @@ export const services: ServiceArea[] = [
     slug:'consulenza-societaria-fiscale', title:'Consulenza societaria e fiscale',
     intro:'Le scelte fiscali e societarie incidono sulla struttura dell’impresa, sui suoi equilibri economici e sul patrimonio dell’imprenditore.',
     paragraphs:[
-      'Lo Studio presta assistenza continuativa a imprese, società e gruppi nella gestione delle problematiche fiscali e societarie, dalla pianificazione delle scelte alla corretta attuazione degli adempimenti.',
-      'Affianchiamo l’imprenditore e gli organi societari nella valutazione delle conseguenze fiscali, economiche e patrimoniali delle decisioni aziendali, con particolare attenzione alla coerenza tra struttura societaria, attività svolta e obiettivi dell’impresa.',
-      'Rientrano nell’area anche la consulenza contabile e di bilancio, la fiscalità d’impresa, l’assistenza agli organi amministrativi e il supporto nelle principali decisioni societarie.'
+      'Lo Studio garantisce un supporto costante ad aziende, società e gruppi nella conduzione degli aspetti fiscali, tributari e societari, dalla definizione delle strategie fino al puntuale compimento di ogni adempimento.',
+      "Offriamo consulenza affiancando la proprietà e gli organi direttivi nel soppesare i riflessi fiscali, patrimoniali ed economici derivanti dalle scelte d'impresa, ponendo massima cura nella sintonia tra assetto societario, operatività e traguardi aziendali.",
+      "Rientrano in questo ambito anche i servizi di consulenza contabile, la predisposizione del bilancio, l'assistenza agli organi di governance e l'orientamento nei passaggi societari di maggior rilievo."
     ],
     when:['Pianificazione fiscale e societaria','Bilanci e fiscalità d’impresa','Scelte degli organi amministrativi','Riorganizzazione degli assetti societari','Valutazione degli effetti economici e patrimoniali'],
-    method:'Partiamo dalla decisione da assumere, ricostruiamo i vincoli fiscali e societari e valutiamo gli effetti complessivi prima di tradurre la scelta in adempimenti e atti.', cta:'Parliamo della questione'
+    method:"Prendiamo le mosse dalla decisione strategica, individuiamo i perimetri normativi e tributari e ponderiamo l'impatto dell'operazione, prima di convertire la scelta in atti formali ed esecuzioni operative.", cta:'Parliamo della questione'
   },
   {
     slug:'operazioni-straordinarie', title:'Operazioni straordinarie e riorganizzazioni societarie',
     intro:'Una fusione, una scissione o una cessione non è soltanto un atto tecnico: modifica assetti, rischi, fiscalità, finanza e prospettive dell’impresa.',
     paragraphs:[
-      'Lo Studio assiste imprese, soci e gruppi nella progettazione e realizzazione di operazioni straordinarie, valutandone congiuntamente gli aspetti societari, fiscali, economici e finanziari.',
+      'Lo Studio assiste imprese, soci e gruppi nella progettazione e realizzazione di operazioni straordinarie, valutando congiuntamente gli aspetti societari, fiscali, economici e finanziari.',
       'L’attività comprende fusioni, scissioni, conferimenti, trasformazioni, acquisizioni e cessioni di partecipazioni, aziende e rami d’azienda, riorganizzazioni degli assetti proprietari e operazioni finalizzate alla separazione di attività o patrimoni.',
       'L’obiettivo non è individuare soltanto l’operazione tecnicamente possibile, ma confrontare le alternative e costruire la soluzione più coerente con gli obiettivi industriali, patrimoniali e familiari dell’imprenditore.'
     ],
@@ -41,7 +41,7 @@ export const services: ServiceArea[] = [
     intro:'La costituzione di una holding non è un fine in sé. È uno strumento che deve essere coerente con la struttura del gruppo, i flussi finanziari e gli obiettivi dei soci.',
     paragraphs:[
       'Lo Studio assiste nella progettazione e riorganizzazione di holding e gruppi societari, nella definizione dei rapporti tra società operative e patrimoniali, nell’organizzazione dei flussi infragruppo e nella valutazione delle implicazioni fiscali delle diverse strutture.',
-      'Particolare attenzione è dedicata alla governance, ai rapporti tra soci e generazioni, alla distribuzione delle funzioni e alla costruzione di assetti capaci di accompagnare la crescita dell’impresa.'
+      "Particolare attenzione è dedicata alla governance, alla gestione dei rapporti interpersonali e generazionali tra soci, alla ripartizione dei ruoli operativi e alla definizione di assetti organizzativi idonei a sostenere lo sviluppo dell'attività nel tempo."
     ],
     when:['Costituzione o revisione di una holding','Riorganizzazione di gruppi societari','Rapporti tra società operative e patrimoniali','Flussi finanziari infragruppo','Governance e rapporti tra soci','Distribuzione di ruoli e responsabilità'],
     method:'Analizziamo la struttura esistente e gli obiettivi reali prima di proporre un assetto. La holding è valutata come parte di un sistema, non come soluzione automatica.', cta:'Parliamo della struttura del gruppo'
