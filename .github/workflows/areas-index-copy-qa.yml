@@ -1,0 +1,128 @@
+name: Temporary activity areas index QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  areas-index-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/areas-index-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/aree-di-attivita/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/areas-index-preview.log
+          exit 1
+      - name: Render and verify activity areas index
+        run: |
+          mkdir -p qa
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390,360];
+          const introTitle = "Questioni diverse. Un'unica visione d'insieme.";
+          const introCopy = 'Le competenze dello Studio convergono in modo naturale in ciascun processo decisionale. Per tale ragione, ogni mandato viene esaminato integrando architettura societaria, profilo tributario, leve finanziarie, asset patrimoniali e ricadute operative.';
+          const areas = [
+            ['Consulenza societaria e fiscale','consulenza-societaria-fiscale',"L'impatto degli assetti tributari e societari si estende direttamente sull'architettura aziendale, sulla stabilità economico-finanziaria e sulla tutela della sfera patrimoniale dell’imprenditore."],
+            ['Operazioni straordinarie e riorganizzazioni societarie','operazioni-straordinarie',"Gli interventi straordinari di riassetto non costituiscono meri adempimenti formali, bensì trasformazioni sostanziali che ridefiniscono gli equilibri societari, l'esposizione ai rischi, l'impatto fiscale, la liquidità e le traiettorie di sviluppo dell'attività."],
+            ['Holding, gruppi e governance','holding-gruppi-governance',"La creazione di una società capogruppo non rappresenta un traguardo a sé stante, bensì una risorsa che deve adattarsi perfettamente all'assetto aziendale, ai bilanci finanziari e ai traguardi strategici della compagine sociale."],
+            ['Pianificazione patrimoniale e passaggio generazionale','pianificazione-patrimoniale-passaggio-generazionale','Ogni intervento su asset aziendali, quote societarie e passaggio generazionale impone scelte ponderate che bilanciano assetti proprietari, governance, equilibrio familiare e sostenibilità tributaria.'],
+            ['Finanza d’impresa e pianificazione','finanza-impresa',"L'equilibrio di un intervento sotto il profilo tributario e societario deve trovare immediato riscontro nella sua concretezza economica e nella sostenibilità dei flussi finanziari."],
+            ['Contenzioso tributario','contenzioso-tributario',"Un accertamento tributario impone scelte immediate e ponderate: prima di impostare la linea difensiva è indispensabile valutare la fondatezza dei rilievi, l'entità del rischio e le diverse opzioni definite dalla norma."]
+          ];
+          const oldTexts = [
+            'Questioni diverse. Una sola lettura d’insieme.',
+            'Le aree professionali dello Studio si incontrano spesso nella stessa decisione. Per questo ogni incarico viene letto considerando insieme struttura societaria, fiscalità, finanza, patrimonio e conseguenze operative.',
+            'Le scelte fiscali e societarie incidono sulla struttura dell’impresa, sui suoi equilibri economici e sul patrimonio dell’imprenditore.',
+            'Una fusione, una scissione o una cessione non è soltanto un atto tecnico: modifica assetti, rischi, fiscalità, finanza e prospettive dell’impresa.',
+            'La costituzione di una holding non è un fine in sé. È uno strumento che deve essere coerente con la struttura del gruppo, i flussi finanziari e gli obiettivi dei soci.',
+            'Patrimonio, partecipazioni e continuità dell’impresa richiedono decisioni che coinvolgono proprietà, gestione, famiglia e fiscalità.',
+            'Un’operazione sostenibile fiscalmente e societariamente deve esserlo anche sul piano economico e finanziario.',
+            'Una verifica fiscale richiede decisioni tempestive: prima di difendersi occorre capire la fondatezza delle contestazioni, il rischio e le alternative.'
+          ];
+          const specialist = 'Analisi documentali e relazioni tecnico-economiche in materia bancaria, a supporto di incarichi che richiedono la ricostruzione dei rapporti finanziari e la valutazione delle relative implicazioni.';
+
+          for (const width of widths) {
+            const page = await browser.newPage();
+            await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4321/aree-di-attivita/', { waitUntil: 'networkidle0' });
+            await page.evaluate(() => document.fonts.ready);
+            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+            await new Promise(resolve => setTimeout(resolve, 120));
+
+            const state = await page.evaluate(({ introTitle, introCopy, areas, oldTexts, specialist, width }) => {
+              const h1 = document.querySelector('h1');
+              const lead = document.querySelector('h1 + p');
+              const articles = [...document.querySelectorAll('section.rule article')];
+              const articleState = articles.map((article, index) => {
+                const titleLink = article.querySelector('h2 a');
+                const desc = article.querySelector('h2 + div > p:first-child');
+                const cta = article.querySelector('h2 + div > p:last-child a');
+                const ar = article.getBoundingClientRect();
+                const tr = titleLink?.getBoundingClientRect();
+                const dr = desc?.getBoundingClientRect();
+                const cr = cta?.getBoundingClientRect();
+                return {
+                  title: titleLink?.textContent?.trim(),
+                  href: titleLink?.getAttribute('href'),
+                  desc: desc?.textContent?.trim(),
+                  cta: cta?.textContent?.trim(),
+                  ctaHref: cta?.getAttribute('href'),
+                  naturalHeight: article.scrollHeight <= article.clientHeight + 1,
+                  titleInside: tr ? tr.left >= ar.left - 1 && tr.right <= ar.right + 1 : false,
+                  descInside: dr ? dr.left >= ar.left - 1 && dr.right <= ar.right + 1 : false,
+                  ctaAfterDesc: dr && cr ? cr.top >= dr.bottom - 1 : false,
+                  expected: areas[index]
+                };
+              });
+              const bodyText = document.body.textContent || '';
+              const h1Rect = h1?.getBoundingClientRect();
+              return {
+                introTitleExact: h1?.textContent?.trim() === introTitle,
+                introCopyExact: lead?.textContent?.trim() === introCopy,
+                articleCount: articles.length,
+                articlesExact: articleState.every((item, index) => {
+                  const [title, slug, desc] = areas[index];
+                  const href = `/aree-di-attivita/${slug}/`;
+                  return item.title === title && item.href === href && item.desc === desc && item.cta === 'Vai all’area →' && item.ctaHref === href && item.naturalHeight && item.titleInside && item.descInside && item.ctaAfterDesc;
+                }),
+                oldAbsent: oldTexts.every(text => !bodyText.includes(text)),
+                specialistUnchanged: bodyText.includes(specialist),
+                overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+                desktopTitleOneLine: width < 1024 || (h1 ? h1.scrollHeight <= Math.ceil(parseFloat(getComputedStyle(h1).lineHeight)) + 2 : false),
+                h1WithinViewport: h1Rect ? h1Rect.right <= window.innerWidth + 1 : false,
+                articleState
+              };
+            }, { introTitle, introCopy, areas, oldTexts, specialist, width });
+
+            if (!state.introTitleExact || !state.introCopyExact || state.articleCount !== 6 || !state.articlesExact || !state.oldAbsent || !state.specialistUnchanged || state.overflow || !state.desktopTitleOneLine || !state.h1WithinViewport) {
+              throw new Error(`Activity areas QA failure ${width}: ${JSON.stringify(state)}`);
+            }
+
+            await page.screenshot({ path: `qa/areas-${width}.png`, fullPage: true });
+            console.log(JSON.stringify({ width, ok: true }));
+            await page.close();
+          }
+
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: activity-areas-index-responsive-qa
+          path: qa/*.png
+          if-no-files-found: error
