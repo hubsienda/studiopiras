@@ -54,6 +54,7 @@ jobs:
             await page.evaluate(() => document.fonts.ready);
             const state = await page.evaluate(({ required, forbidden }) => {
               const text = document.body.innerText;
+              const textLower = text.toLocaleLowerCase('it');
               const studioCopy = document.querySelector('section.rule .body-copy');
               return {
                 requiredPresent: required.every(item => text.includes(item)),
@@ -66,8 +67,8 @@ jobs:
                 analysisPresent: text.includes('ANALISI'),
                 strategyPresent: text.includes('STRATEGIA'),
                 executionPresent: text.includes('ESECUZIONE'),
-                areasPresent: text.includes('Aree di attività'),
-                integratedPresent: text.includes('Competenze integrate')
+                areasPresent: textLower.includes('aree di attività'),
+                integratedPresent: textLower.includes('competenze integrate')
               };
             }, { required, forbidden });
             if (!state.requiredPresent || !state.forbiddenAbsent || !state.threeStudioParagraphs || state.overflow || !state.claimPresent || !state.studioCtaPresent || !state.methodTitlePresent || !state.analysisPresent || !state.strategyPresent || !state.executionPresent || !state.areasPresent || !state.integratedPresent) {
