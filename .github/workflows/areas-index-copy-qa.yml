@@ -92,6 +92,13 @@ jobs:
               });
               const bodyText = document.body.textContent || '';
               const h1Rect = h1?.getBoundingClientRect();
+              let h1LineCount = 0;
+              if (h1) {
+                const range = document.createRange();
+                range.selectNodeContents(h1);
+                const tops = [...range.getClientRects()].filter(r => r.width > 0 && r.height > 0).map(r => Math.round(r.top));
+                h1LineCount = new Set(tops).size;
+              }
               return {
                 introTitleExact: h1?.textContent?.trim() === introTitle,
                 introCopyExact: lead?.textContent?.trim() === introCopy,
@@ -104,7 +111,8 @@ jobs:
                 oldAbsent: oldTexts.every(text => !bodyText.includes(text)),
                 specialistUnchanged: bodyText.includes(specialist),
                 overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-                desktopTitleOneLine: width < 1024 || (h1 ? h1.scrollHeight <= Math.ceil(parseFloat(getComputedStyle(h1).lineHeight)) + 2 : false),
+                desktopTitleOneLine: width < 1024 || h1LineCount === 1,
+                h1LineCount,
                 h1WithinViewport: h1Rect ? h1Rect.right <= window.innerWidth + 1 : false,
                 articleState
               };
@@ -115,7 +123,7 @@ jobs:
             }
 
             await page.screenshot({ path: `qa/areas-${width}.png`, fullPage: true });
-            console.log(JSON.stringify({ width, ok: true }));
+            console.log(JSON.stringify({ width, ok: true, h1LineCount: state.h1LineCount }));
             await page.close();
           }
 
