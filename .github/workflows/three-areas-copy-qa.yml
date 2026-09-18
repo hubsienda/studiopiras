@@ -1,0 +1,169 @@
+name: Temporary three activity areas copy QA
+on:
+  push:
+    branches: [main]
+
+jobs:
+  three-areas-copy-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm install
+          npm install --no-save puppeteer-core@24
+          npm run build
+      - name: Start preview
+        run: |
+          nohup npx astro preview --host 127.0.0.1 --port 4321 >/tmp/three-areas-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/aree-di-attivita/consulenza-societaria-fiscale/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/three-areas-preview.log
+          exit 1
+      - name: Render and verify three activity areas
+        run: |
+          mkdir -p qa
+          node --input-type=module <<'NODE'
+          import puppeteer from 'puppeteer-core';
+          import { execSync } from 'node:child_process';
+
+          const executablePath = execSync('command -v google-chrome || command -v chromium || command -v chromium-browser').toString().trim();
+          const browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const widths = [1440,1280,1024,768,430,390,360];
+          const pages = [
+            {
+              slug: 'consulenza-societaria-fiscale',
+              title: 'Consulenza societaria e fiscale',
+              intro: 'Le scelte fiscali e societarie incidono sulla struttura dell’impresa, sui suoi equilibri economici e sul patrimonio dell’imprenditore.',
+              paragraphs: [
+                'Lo Studio garantisce un supporto costante ad aziende, società e gruppi nella conduzione degli aspetti fiscali, tributari e societari, dalla definizione delle strategie fino al puntuale compimento di ogni adempimento.',
+                "Offriamo consulenza affiancando la proprietà e gli organi direttivi nel soppesare i riflessi fiscali, patrimoniali ed economici derivanti dalle scelte d'impresa, ponendo massima cura nella sintonia tra assetto societario, operatività e traguardi aziendali.",
+                "Rientrano in questo ambito anche i servizi di consulenza contabile, la predisposizione del bilancio, l'assistenza agli organi di governance e l'orientamento nei passaggi societari di maggior rilievo."
+              ],
+              method: "Prendiamo le mosse dalla decisione strategica, individuiamo i perimetri normativi e tributari e ponderiamo l'impatto dell'operazione, prima di convertire la scelta in atti formali ed esecuzioni operative.",
+              when: ['Pianificazione fiscale e societaria','Bilanci e fiscalità d’impresa','Scelte degli organi amministrativi','Riorganizzazione degli assetti societari','Valutazione degli effetti economici e patrimoniali'],
+              cta: 'Parliamo della questione →',
+              forbidden: [
+                'Lo Studio presta assistenza continuativa a imprese, società e gruppi nella gestione delle problematiche fiscali e societarie, dalla pianificazione delle scelte alla corretta attuazione degli adempimenti.',
+                'Affianchiamo l’imprenditore e gli organi societari nella valutazione delle conseguenze fiscali, economiche e patrimoniali delle decisioni aziendali, con particolare attenzione alla coerenza tra struttura societaria, attività svolta e obiettivi dell’impresa.',
+                'Rientrano nell’area anche la consulenza contabile e di bilancio, la fiscalità d’impresa, l’assistenza agli organi amministrativi e il supporto nelle principali decisioni societarie.',
+                'Partiamo dalla decisione da assumere, ricostruiamo i vincoli fiscali e societari e valutiamo gli effetti complessivi prima di tradurre la scelta in adempimenti e atti.'
+              ]
+            },
+            {
+              slug: 'operazioni-straordinarie',
+              title: 'Operazioni straordinarie e riorganizzazioni societarie',
+              intro: 'Una fusione, una scissione o una cessione non è soltanto un atto tecnico: modifica assetti, rischi, fiscalità, finanza e prospettive dell’impresa.',
+              paragraphs: [
+                'Lo Studio assiste imprese, soci e gruppi nella progettazione e realizzazione di operazioni straordinarie, valutando congiuntamente gli aspetti societari, fiscali, economici e finanziari.',
+                'L’attività comprende fusioni, scissioni, conferimenti, trasformazioni, acquisizioni e cessioni di partecipazioni, aziende e rami d’azienda, riorganizzazioni degli assetti proprietari e operazioni finalizzate alla separazione di attività o patrimoni.',
+                'L’obiettivo non è individuare soltanto l’operazione tecnicamente possibile, ma confrontare le alternative e costruire la soluzione più coerente con gli obiettivi industriali, patrimoniali e familiari dell’imprenditore.'
+              ],
+              method: 'Mettiamo a confronto le alternative, gli effetti fiscali, societari e finanziari e le conseguenze nel tempo, coordinando l’esecuzione con le altre competenze necessarie.',
+              when: ['Fusioni, scissioni e conferimenti','Trasformazioni societarie','Acquisizioni e cessioni','Separazione di attività e patrimoni','Riorganizzazioni proprietarie','Operazioni su aziende e partecipazioni'],
+              cta: 'Confrontiamoci sull’operazione →',
+              forbidden: ['valutandone congiuntamente gli aspetti societari, fiscali, economici e finanziari.']
+            },
+            {
+              slug: 'holding-gruppi-governance',
+              title: 'Holding, gruppi e governance',
+              intro: 'La costituzione di una holding non è un fine in sé. È uno strumento che deve essere coerente con la struttura del gruppo, i flussi finanziari e gli obiettivi dei soci.',
+              paragraphs: [
+                'Lo Studio assiste nella progettazione e riorganizzazione di holding e gruppi societari, nella definizione dei rapporti tra società operative e patrimoniali, nell’organizzazione dei flussi infragruppo e nella valutazione delle implicazioni fiscali delle diverse strutture.',
+                "Particolare attenzione è dedicata alla governance, alla gestione dei rapporti interpersonali e generazionali tra soci, alla ripartizione dei ruoli operativi e alla definizione di assetti organizzativi idonei a sostenere lo sviluppo dell'attività nel tempo."
+              ],
+              method: 'Analizziamo la struttura esistente e gli obiettivi reali prima di proporre un assetto. La holding è valutata come parte di un sistema, non come soluzione automatica.',
+              when: ['Costituzione o revisione di una holding','Riorganizzazione di gruppi societari','Rapporti tra società operative e patrimoniali','Flussi finanziari infragruppo','Governance e rapporti tra soci','Distribuzione di ruoli e responsabilità'],
+              cta: 'Parliamo della struttura del gruppo →',
+              forbidden: ['Particolare attenzione è dedicata alla governance, ai rapporti tra soci e generazioni, alla distribuzione delle funzioni e alla costruzione di assetti capaci di accompagnare la crescita dell’impresa.','governance,alla']
+            }
+          ];
+
+          for (const spec of pages) {
+            for (const width of widths) {
+              const page = await browser.newPage();
+              await page.setViewport({ width, height: 1000, deviceScaleFactor: 1 });
+              await page.goto(`http://127.0.0.1:4321/aree-di-attivita/${spec.slug}/`, { waitUntil: 'networkidle0' });
+              await page.evaluate(() => document.fonts.ready);
+              const state = await page.evaluate((spec) => {
+                const sections = [...document.querySelectorAll('main > section, body > section')];
+                const h1 = document.querySelector('h1');
+                const intro = document.querySelector('h1 + p.lead');
+                const intervention = [...document.querySelectorAll('section')].find(s => s.textContent?.includes('L’intervento dello Studio'));
+                const bodyParas = intervention ? [...intervention.querySelectorAll('.body-copy > p')].map(p => p.textContent?.trim()) : [];
+                const work = [...document.querySelectorAll('section')].find(s => s.textContent?.includes('Come lavoriamo'));
+                const method = work?.querySelector('.lead')?.textContent?.trim() ?? '';
+                const whenList = work?.querySelector('ul') ? [] : [...document.querySelectorAll('section')].find(s => s.textContent?.includes('Quando interveniamo'))?.querySelectorAll('li');
+                const whenSection = [...document.querySelectorAll('section')].find(s => s.textContent?.includes('Quando interveniamo'));
+                const when = whenSection ? [...whenSection.querySelectorAll('li')].map(li => li.textContent?.trim()) : [];
+                const cta = [...document.querySelectorAll('a[href="/contatti/"]')].at(-1);
+                const bodyText = document.body.textContent || '';
+                const allBlocks = [...document.querySelectorAll('p,h1,h2,li,a')];
+                const clipped = allBlocks.some(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+                return {
+                  title: h1?.textContent?.trim(),
+                  intro: intro?.textContent?.trim(),
+                  bodyParas,
+                  method,
+                  when,
+                  cta: cta?.textContent?.trim(),
+                  ctaHref: cta?.getAttribute('href'),
+                  forbiddenAbsent: spec.forbidden.every(text => !bodyText.includes(text)),
+                  governanceSpacing: !bodyText.includes('governance,alla'),
+                  overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+                  clipped
+                };
+              }, spec);
+
+              if (
+                state.title !== spec.title || state.intro !== spec.intro ||
+                JSON.stringify(state.bodyParas) !== JSON.stringify(spec.paragraphs) ||
+                state.method !== spec.method || JSON.stringify(state.when) !== JSON.stringify(spec.when) ||
+                state.cta !== spec.cta || state.ctaHref !== '/contatti/' ||
+                !state.forbiddenAbsent || !state.governanceSpacing || state.overflow || state.clipped
+              ) {
+                throw new Error(`${spec.slug} QA failure ${width}: ${JSON.stringify(state)}`);
+              }
+
+              await page.screenshot({ path: `qa/${spec.slug}-${width}.png`, fullPage: true });
+              console.log(JSON.stringify({ slug: spec.slug, width, ok: true }));
+              await page.close();
+            }
+          }
+
+          const indexPage = await browser.newPage();
+          await indexPage.goto('http://127.0.0.1:4321/aree-di-attivita/', { waitUntil: 'networkidle0' });
+          const indexState = await indexPage.evaluate(() => ({
+            title: document.querySelector('h1')?.textContent?.trim(),
+            cards: [...document.querySelectorAll('section.rule article')].map(a => ({ title: a.querySelector('h2')?.textContent?.trim(), href: a.querySelector('h2 a')?.getAttribute('href') }))
+          }));
+          if (indexState.title !== "Questioni diverse. Un'unica visione d'insieme." || indexState.cards.length !== 6) {
+            throw new Error(`Index changed unexpectedly: ${JSON.stringify(indexState)}`);
+          }
+          await indexPage.close();
+
+          const untouched = [
+            ['pianificazione-patrimoniale-passaggio-generazionale','Il patrimonio dell’imprenditore, le partecipazioni societarie e la continuità dell’impresa richiedono una pianificazione che non può essere affrontata soltanto sotto il profilo fiscale.'],
+            ['finanza-impresa','Lo Studio supporta l’impresa nella predisposizione di business plan e piani economico-finanziari, nell’analisi degli investimenti, dei fabbisogni e dei flussi di cassa e nella valutazione della sostenibilità delle operazioni.'],
+            ['contenzioso-tributario','Lo Studio assiste il cliente sin dalle prime fasi della verifica fiscale e durante il procedimento di accertamento, valutando tempestivamente la fondatezza delle contestazioni, il rischio economico e le possibili strategie.']
+          ];
+          for (const [slug, paragraph] of untouched) {
+            const page = await browser.newPage();
+            await page.goto(`http://127.0.0.1:4321/aree-di-attivita/${slug}/`, { waitUntil: 'networkidle0' });
+            const ok = await page.evaluate(paragraph => document.body.textContent?.includes(paragraph), paragraph);
+            if (!ok) throw new Error(`Untouched area changed unexpectedly: ${slug}`);
+            await page.close();
+          }
+
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-activity-areas-responsive-qa
+          path: qa/*.png
+          if-no-files-found: error
